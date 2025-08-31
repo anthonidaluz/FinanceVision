@@ -288,7 +288,7 @@
                     </button>
 
                     <p class="login-link">
-                        Já tem uma conta? <a href="{{-- route('login') --}}">Clique Aqui</a>
+                        Já tem uma conta? <a href="/entrar">Clique Aqui</a>
                     </p>
                 </form>
             </div>

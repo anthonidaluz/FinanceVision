@@ -356,7 +356,7 @@
 
     <div class="page-container">
         <header class="page-header">
-            <a href="#" class="back-arrow"><i class="fa-solid fa-arrow-left"></i></a>
+            <a href="{{ route('dashboard') }}" class="back-arrow"><i class="fa-solid fa-arrow-left"></i></a>
             <h1 class="header-logo">Finance Vision</h1>
         </header>
 

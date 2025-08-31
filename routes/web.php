@@ -1,43 +1,74 @@
 <?php
 
+use App\Http\Controllers\LancamentoController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Rotas Públicas
+|--------------------------------------------------------------------------
+|
+| Estas rotas são acessíveis a todos os visitantes, logados ou não.
+|
+*/
+
+// Página inicial
 Route::get('/', function () {
-    return view('welcome'); 
+    return view('welcome');
 });
 
+// Suas URLs personalizadas para as páginas de autenticação do Breeze.
+// O uso de ->name() é crucial para a integração com o Laravel.
 Route::get('/entrar', function () {
-    return view('entrar'); 
-});
+    return view('auth.login');
+})->name('login');
 
 Route::get('/cadastro', function () {
-    return view(view:'cadastro');
-}); 
+    return view('auth.register');
+})->name('register');
 
-Route::get('/esqueceu-senha', function () {
-    return view(view:'esqueceu-senha');
-}); 
-
+// Página de dicas, assumindo que seja pública.
 Route::get('/dicas', function () {
-    return view(view:'dicas');
-}); 
+    return view('dicas');
+})->name('dicas');
 
-Route::get('/configuracoes', function () {
-    return view(view:'configuracoes');
-}); 
 
-Route::get('/relatorios', function () {
-    return view(view:'relatorios');
-}); 
+/*
+|--------------------------------------------------------------------------
+| Rotas Protegidas (Exigem Autenticação)
+|--------------------------------------------------------------------------
+|
+| Todas as rotas dentro deste grupo só podem ser acessadas por usuários
+| que já fizeram login. O middleware 'auth' e 'verified' garantem isso.
+| 'verified' garante que o usuário já verificou seu e-mail.
+|
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
 
-Route::get('/metas', function () {
-    return view(view:'metas');
-}); 
+    // Rota do Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/lancamentos', function () {
-    return view(view:'lancamentos');
-}); 
+    // Rotas do Perfil do Usuário
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-Route::get('/dashboard', function () {
-    return view(view:'dashboard');
-}); 
+    Route::resource('lancamentos', LancamentoController::class);
+
+    Route::get('/metas', function () {
+        return view('metas');
+    })->name('metas');
+
+    Route::get('/relatorios', function () {
+        return view('relatorios');
+    })->name('relatorios');
+
+    Route::get('/configuracoes', function () {
+        return view('configuracoes');
+    })->name('configuracoes');
+});
+
+
+require __DIR__ . '/auth.php';

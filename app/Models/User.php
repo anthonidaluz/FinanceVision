@@ -23,6 +23,11 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function lancamentos()
+    {
+        return $this->hasMany(Lancamento::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
