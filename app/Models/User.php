@@ -28,6 +28,12 @@ class User extends Authenticatable
         return $this->hasMany(Lancamento::class);
     }
 
+    public function metas()
+    {
+        return $this->hasMany(Meta::class);
+    }
+
+
     /**
      * The attributes that should be hidden for serialization.
      *

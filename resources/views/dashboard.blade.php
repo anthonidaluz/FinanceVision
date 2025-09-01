@@ -238,7 +238,8 @@
                     <li><a href="{{ route('lancamentos.index') }}"
                             class="{{ request()->routeIs('lancamentos.*') ? 'active' : '' }}"><i
                                 class="fa-solid fa-money-bill-transfer"></i> Lançamentos</a></li>
-                    <li><a href="{{ route('metas') }}" class="{{ request()->routeIs('metas') ? 'active' : '' }}"><i
+                    <li><a href="{{ route('metas.index') }}"
+                            class="{{ request()->routeIs('metas.*') ? 'active' : '' }}"><i
                                 class="fa-solid fa-crosshairs"></i> Metas</a></li>
                     <li><a href="{{ route('relatorios') }}"
                             class="{{ request()->routeIs('relatorios') ? 'active' : '' }}"><i

@@ -3,6 +3,7 @@
 use App\Http\Controllers\LancamentoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\MetaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,9 +58,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('lancamentos', LancamentoController::class);
 
-    Route::get('/metas', function () {
-        return view('metas');
-    })->name('metas');
+   //Route::get('/metas', function () {
+   //     return view('metas');
+    //})->name('metas');
+
+    // Dentro do Route::middleware(['auth', 'verified'])->group(...)
+    Route::resource('metas', MetaController::class);
 
     Route::get('/relatorios', function () {
         return view('relatorios');
