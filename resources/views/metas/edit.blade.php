@@ -1,73 +1,47 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Meta - Finance Vision</title>
-    {{-- Os links de CSS e fontes são os mesmos da página de criação --}}
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        /* Reutilize o mesmo CSS da sua página `metas/create.blade.php` */
-        :root {
-            --primary-color: #3498DB; --text-dark: #2c3e50; --border-color: #e9ecef;
-            --background-color: #f8f9fa; --white: #ffffff;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--background-color); color: var(--text-dark); }
-        .page-container { max-width: 800px; margin: 0 auto; padding: 30px; }
-        .page-header { display: flex; align-items: center; gap: 20px; }
-        .back-arrow { font-size: 1.8rem; color: var(--text-dark); text-decoration: none; }
-        .header-logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
-        .page-title { text-align: center; font-size: 2.8rem; font-weight: 600; margin: 20px 0 30px 0; }
-        .form-card { background: var(--white); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; }
-        .input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-        .input-group label { font-weight: 500; font-size: 0.9rem; color: var(--text-dark); }
-        .input-group input {
-            width: 100%; padding: 12px 15px; font-size: 0.95rem; border: 1px solid var(--border-color);
-            border-radius: 8px; font-family: 'Poppins', sans-serif;
-        }
-        .error-message { color: #e3342f; font-size: 12px; }
-        .actions-container { text-align: center; margin-top: 30px; }
-        .btn-save {
-            background-color: var(--primary-color); color: var(--white); border: none; padding: 14px 60px;
-            font-size: 1rem; font-weight: 600; border-radius: 8px; cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <div class="page-container">
-        <header class="page-header">
-            <a href="{{ route('metas.index') }}" class="back-arrow"><i class="fa-solid fa-arrow-left"></i></a>
-            <h1 class="header-logo">Finance Vision</h1>
-        </header>
-        <h2 class="page-title">Editar Meta</h2>
+@extends('layouts.app')
 
-        <div class="form-card">
-            <form action="{{ route('metas.update', $meta) }}" method="POST">
-                @csrf
-                @method('PATCH')
+@section('header')
+    Editar Meta
+@endsection
 
+@section('content')
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-md max-w-2xl mx-auto">
+        <form action="{{ route('metas.update', $meta) }}" method="POST">
+            @csrf
+            @method('PATCH')
+            <div class="space-y-6">
                 <div class="input-group">
-                    <label for="name">Nome da Meta</label>
-                    <input type="text" id="name" name="name" value="{{ old('name', $meta->name) }}" required>
-                    @error('name') <div class="error-message">{{ $message }}</div> @enderror
+                    <label for="name" class="block text-sm font-medium text-gray-700">Nome da Meta</label>
+                    <input type="text" id="name" name="name" value="{{ old('name', $meta->name) }}" required
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                    @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div class="input-group">
-                    <label for="target_amount">Valor Alvo (R$)</label>
-                    <input type="number" step="0.01" id="target_amount" name="target_amount" value="{{ old('target_amount', $meta->target_amount) }}" required>
-                    @error('target_amount') <div class="error-message">{{ $message }}</div> @enderror
+                    <label for="target_amount" class="block text-sm font-medium text-gray-700">Valor Alvo (R$)</label>
+                    <input type="number" step="0.01" id="target_amount" name="target_amount"
+                        value="{{ old('target_amount', $meta->target_amount) }}" required
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                    @error('target_amount') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div class="input-group">
-                    <label for="target_date">Data Alvo (Opcional)</label>
-                    <input type="date" id="target_date" name="target_date" value="{{ old('target_date', $meta->target_date) }}">
-                    @error('target_date') <div class="error-message">{{ $message }}</div> @enderror
+                    <label for="target_date" class="block text-sm font-medium text-gray-700">Data Alvo (Opcional)</label>
+                    <input type="date" id="target_date" name="target_date"
+                        value="{{ old('target_date', $meta->target_date) }}"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                    @error('target_date') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
-                <div class="actions-container">
-                    <button type="submit" class="btn-save">Salvar Alterações</button>
-                </div>
-            </form>
-        </div>
+            </div>
+            {{-- Depois --}}
+            <div class="flex items-center justify-end gap-4 mt-6 pt-6 border-t">
+                <a href="{{ route('metas.index') }}"
+                    class="inline-flex items-center px-6 py-2 bg-white border border-gray-300 rounded-md font-semibold text-gray-700 uppercase tracking-widest hover:bg-gray-50 transition">
+                    Voltar
+                </a>
+                <button type="submit"
+                    class="inline-flex items-center px-8 py-2 bg-primary border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-opacity-90">
+                    Salvar Alterações
+                </button>
+            </div>
+        </form>
     </div>
-</body>
-</html>
+@endsection

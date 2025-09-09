@@ -1,305 +1,165 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Finance Vision</title>
+@section('header')
+    Dashboard
+@endsection
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+@section('content')
+    <div class="space-y-12">
+        {{-- SEÇÃO 1: SAUDAÇÃO E VISÃO GERAL (KPIs) --}}
+        <div>
+            <h2 class="text-3xl font-bold text-gray-800">Bem-vindo de volta, {{ Auth::user()->name }}!</h2>
+            <p class="mt-1 text-lg text-gray-600">Aqui está o resumo financeiro para
+                {{ \Carbon\Carbon::now()->translatedFormat('F') }}.</p>
 
-    <style>
-        :root {
-            --primary-color: #3498DB;
-            --sidebar-bg: #FFFFFF;
-            --main-bg: #F4F7FC;
-            --card-bg: #FFFFFF;
-            --text-dark: #2c3e50;
-            --text-light: #95a5a6;
-            --border-color: #e9ecef;
-            --income-color: #2ecc71;
-            --expense-color: #e74c3c;
-            --goal-color: #f1c40f;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--main-bg);
-            color: var(--text-dark);
-        }
-
-        .app-container {
-            display: grid;
-            grid-template-columns: 260px 1fr 320px;
-            grid-template-rows: auto 1fr;
-            grid-template-areas:
-                "sidebar topbar notifications"
-                "sidebar main notifications";
-            height: 100vh;
-        }
-
-        .sidebar {
-            grid-area: sidebar;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-profile-link {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            transition: background-color 0.2s;
-        }
-
-        .user-profile:hover {
-            background-color: var(--main-bg);
-        }
-
-        .user-profile img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #ccc;
-        }
-
-        .user-profile span {
-            font-weight: 600;
-        }
-
-        .main-nav ul {
-            list-style: none;
-        }
-
-        .main-nav a,
-        .logout-form a {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 15px;
-            margin: 5px 0;
-            border-radius: 8px;
-            text-decoration: none;
-            color: var(--text-light);
-            font-weight: 500;
-            transition: background-color 0.2s, color 0.2s;
-        }
-
-        .main-nav a:hover,
-        .logout-form a:hover {
-            background-color: var(--main-bg);
-            color: var(--text-dark);
-        }
-
-        .main-nav a.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .main-nav a i,
-        .logout-form a i {
-            width: 20px;
-            text-align: center;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            text-align: center;
-        }
-
-        .sidebar-footer .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .topbar {
-            grid-area: topbar;
-            background-color: var(--card-bg);
-            padding: 0 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            height: 70px;
-        }
-
-        .main-content {
-            grid-area: main;
-            padding: 25px;
-            overflow-y: auto;
-        }
-
-        .notifications-sidebar {
-            grid-area: notifications;
-            background-color: var(--card-bg);
-            border-left: 1px solid var(--border-color);
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        /* Adicione o resto do seu CSS extenso aqui... */
-        .kpi-cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .kpi-card {
-            padding: 20px;
-            border-radius: 12px;
-            color: white;
-        }
-
-        .kpi-card .label {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-
-        .kpi-card .value {
-            font-size: 2rem;
-            font-weight: 700;
-        }
-
-        .kpi-card.income {
-            background-color: var(--income-color);
-        }
-
-        .kpi-card.expense {
-            background-color: var(--expense-color);
-        }
-
-        .kpi-card.goals {
-            background-color: var(--goal-color);
-        }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 25px;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .card-header h3 {
-            font-size: 1.1rem;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <a href="{{ route('profile.edit') }}" class="user-profile-link">
-                <div class="user-profile">
-                    <img src="https://i.pravatar.cc/40?u={{ Auth::user()->email }}" alt="Avatar do Usuário">
-                    <span>{{ Auth::user()->name }}</span>
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div
+                    class="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg transform hover:-translate-y-1 transition-transform">
+                    <div class="flex justify-between items-center">
+                        <p class="text-sm font-medium opacity-90">Receitas (Mês)</p>
+                        <i class="fa-solid fa-arrow-up opacity-70"></i>
+                    </div>
+                    <p class="text-3xl font-bold mt-2">R$ {{ number_format($totalReceitasMes ?? 0, 2, ',', '.') }}</p>
                 </div>
-            </a>
-            <nav class="main-nav">
-                <ul>
-                    <li><a href="{{ route('dashboard') }}"
-                            class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"><i
-                                class="fa-solid fa-house"></i> Dashboard</a></li>
-                    <li><a href="{{ route('lancamentos.index') }}"
-                            class="{{ request()->routeIs('lancamentos.*') ? 'active' : '' }}"><i
-                                class="fa-solid fa-money-bill-transfer"></i> Lançamentos</a></li>
-                    <li><a href="{{ route('metas.index') }}"
-                            class="{{ request()->routeIs('metas.*') ? 'active' : '' }}"><i
-                                class="fa-solid fa-crosshairs"></i> Metas</a></li>
-                    <li><a href="{{ route('relatorios') }}"
-                            class="{{ request()->routeIs('relatorios') ? 'active' : '' }}"><i
-                                class="fa-solid fa-chart-pie"></i> Relatórios</a></li>
-                    <li><a href="{{ route('dicas') }}" class="{{ request()->routeIs('dicas') ? 'active' : '' }}"><i
-                                class="fa-solid fa-lightbulb"></i> Dicas Financeiras</a></li>
-                    <li><a href="{{ route('configuracoes') }}"
-                            class="{{ request()->routeIs('configuracoes') ? 'active' : '' }}"><i
-                                class="fa-solid fa-gear"></i> Configurações</a></li>
-                </ul>
-            </nav>
-            <div class="sidebar-footer">
-                <nav class="main-nav">
-                    <ul>
-                        <li>
-                            <form method="POST" action="{{ route('logout') }}" class="logout-form">
-                                @csrf
-                                <a href="{{ route('logout') }}"
-                                    onclick="event.preventDefault(); this.closest('form').submit();">
-                                    <i class="fa-solid fa-right-from-bracket"></i> Sair
-                                </a>
-                            </form>
+                <div
+                    class="bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-xl shadow-lg transform hover:-translate-y-1 transition-transform">
+                    <div class="flex justify-between items-center">
+                        <p class="text-sm font-medium opacity-90">Despesas (Mês)</p>
+                        <i class="fa-solid fa-arrow-down opacity-70"></i>
+                    </div>
+                    <p class="text-3xl font-bold mt-2">R$ {{ number_format($totalDespesasMes ?? 0, 2, ',', '.') }}</p>
+                </div>
+                <div
+                    class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg transform hover:-translate-y-1 transition-transform">
+                    <div class="flex justify-between items-center">
+                        <p class="text-sm font-medium opacity-90">Saldo do Mês</p>
+                        <i class="fa-solid fa-scale-balanced opacity-70"></i>
+                    </div>
+                    <p class="text-3xl font-bold mt-2">R$
+                        {{ number_format(($totalReceitasMes ?? 0) - ($totalDespesasMes ?? 0), 2, ',', '.') }}</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- SEÇÃO 2: ACESSO RÁPIDO (RESTAURADA) --}}
+        <div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Acesso Rápido</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <a href="{{ route('lancamentos.index') }}"
+                    class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4 transition-all hover:shadow-lg hover:bg-gray-50">
+                    <div
+                        class="flex-shrink-0 inline-flex items-center justify-center h-12 w-12 rounded-lg bg-primary text-white">
+                        <i class="fa-solid fa-plus fa-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">Adicionar Lançamento</h4>
+                        <p class="text-sm text-gray-600">Registre uma nova receita ou despesa.</p>
+                    </div>
+                </a>
+                <a href="{{ route('metas.create') }}"
+                    class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4 transition-all hover:shadow-lg hover:bg-gray-50">
+                    <div
+                        class="flex-shrink-0 inline-flex items-center justify-center h-12 w-12 rounded-lg bg-yellow-400 text-white">
+                        <i class="fa-solid fa-bullseye fa-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">Criar Nova Meta</h4>
+                        <p class="text-sm text-gray-600">Comece a planejar seu próximo objetivo.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        {{-- SEÇÃO 3: ANÁLISES VISUAIS (GRÁFICOS) --}}
+        <div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Análises Visuais</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <div class="lg:col-span-3 bg-white p-6 rounded-xl shadow-md">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-4">Evolução Financeira</h4>
+                    <div class="h-80 bg-gray-50 flex items-center justify-center rounded-md border">
+                        <div class="text-center text-gray-400">
+                            <i class="fa-solid fa-chart-line text-6xl"></i>
+                            <p class="mt-2 font-medium">Gráfico de Linhas (Em Breve)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-4">Despesas por Categoria</h4>
+                    <div class="h-80 flex items-center justify-center">
+                        <div class="text-center text-gray-400">
+                            <i class="fa-solid fa-chart-pie text-6xl"></i>
+                            <p class="mt-2 font-medium">Gráfico de Pizza (Em Breve)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- SEÇÃO 4: ACOMPANHAMENTO E GAMIFICAÇÃO (RESTAURADA E APRIMORADA) --}}
+        <div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Acompanhamento</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-4">Suas Metas em Destaque</h4>
+                    <div class="space-y-4">
+                        @forelse ($metasEmAndamento as $meta)
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-700">{{ $meta->name }}</span>
+                                    <span class="text-sm font-semibold text-gray-800">R$
+                                        {{ number_format($meta->current_amount, 2, ',', '.') }} / R$
+                                        {{ number_format($meta->target_amount, 2, ',', '.') }}</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-primary h-2.5 rounded-full" style="width: {{ $meta->progress }}%"></div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center text-gray-500 py-8">
+                                <i class="fa-solid fa-bullseye text-4xl text-gray-300 mb-2"></i>
+                                <p>Nenhuma meta em andamento. <a href="{{ route('metas.create') }}"
+                                        class="text-primary font-semibold hover:underline">Crie uma agora!</a></p>
+                            </div>
+                        @endforelse
+                        <div class="text-right mt-4">
+                            <a href="{{ route('metas.index') }}"
+                                class="text-sm font-semibold text-primary hover:underline">Ver todas as metas →</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-4">Atividade Recente</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3 opacity-50">
+                            <div
+                                class="flex-shrink-0 mt-1 h-8 w-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                                <i class="fa-solid fa-trophy"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">Conquista: Mestre da Poupança!</p>
+                                <p class="text-xs text-gray-500">Funcionalidade em breve</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 opacity-50">
+                            <div
+                                class="flex-shrink-0 mt-1 h-8 w-8 rounded-full bg-green-100 text-success flex items-center justify-center">
+                                <i class="fa-solid fa-check"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">Meta concluída!</p>
+                                <p class="text-xs text-gray-500">Funcionalidade em breve</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 opacity-50">
+                            <div
+                                class="flex-shrink-0 mt-1 h-8 w-8 rounded-full bg-blue-100 text-primary flex items-center justify-center">
+                                <i class="fa-solid fa-plus"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">Novo lançamento adicionado</p>
+                                <p class="text-xs text-gray-500">Funcionalidade em breve</p>
+                            </div>
                         </li>
                     </ul>
-                </nav>
-                <h1 class="logo">Finance Vision</h1>
-            </div>
-        </aside>
-
-        <header class="topbar"></header>
-
-        <main class="main-content">
-            <h2>Visualização</h2>
-            <div class="kpi-cards">
-                <div class="kpi-card income">
-                    <p class="label">Receitas</p>
-                    <p class="value">R$ {{ number_format($totalReceitas ?? 0, 2, ',', '.') }}</p>
-                </div>
-                <div class="kpi-card expense">
-                    <p class="label">Despesas</p>
-                    <p class="value">R$ 214,99</p>
-                </div>
-                <div class="kpi-card goals">
-                    <p class="label">Progresso de Metas</p>
-                    <p class="value">R$ 29,72</p>
                 </div>
             </div>
-            <div class="charts-grid">
-                <div class="card"> ... </div>
-                <div class="card"> ... </div>
-            </div>
-        </main>
-
-        <aside class="notifications-sidebar">
-            <h3>Notificações</h3>
-            <ul class="notification-list"> ... </ul>
-            <h3>Conquistas</h3>
-            <ul class="achievement-list"> ... </ul>
-        </aside>
+        </div>
     </div>
-</body>
-
-</html>
+@endsection

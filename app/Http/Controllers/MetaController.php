@@ -11,10 +11,30 @@ class MetaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    // No topo do arquivo, adicione:
+
+
+    // ...
+
+    // Substitua o método index() existente por este:
+    public function index(Request $request)
     {
-        $metas = Auth::user()->metas()->get();
-        return view('metas.index', ['metas' => $metas]);
+        // 1. Pega os valores dos filtros da URL (ou usa null se não existirem)
+        $statusFilter = $request->query('status');
+        $sortOrder = $request->query('sort');
+
+        // 2. Inicia a consulta e aplica os scopes
+        $metas = Auth::user()->metas()
+            ->ofStatus($statusFilter) // Aplica o filtro de status
+            ->sortBy($sortOrder)     // Aplica a ordenação
+            ->get();
+
+        // 3. Envia os dados e os filtros selecionados de volta para a view
+        return view('metas.index', [
+            'metas' => $metas,
+            'selectedStatus' => $statusFilter,
+            'selectedSort' => $sortOrder,
+        ]);
     }
 
     /**

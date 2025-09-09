@@ -9,13 +9,19 @@ export default {
         './resources/views/**/*.blade.php',
     ],
 
-    theme: {
-        extend: {
-            fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
-            },
+
+theme: {
+    extend: {
+        fontFamily: {
+            sans: ['Poppins', ...defaultTheme.fontFamily.sans],
+        },
+        colors: {
+            'primary': '#3498DB', 
+            'danger': '#e74c3c',  
+            'success': '#28a745', 
         },
     },
+},
 
     plugins: [forms],
 };
