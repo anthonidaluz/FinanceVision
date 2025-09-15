@@ -11,8 +11,6 @@ class Lancamento extends Model
 
     /**
      * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
      */
     protected $fillable = [
         'description',
@@ -20,13 +18,22 @@ class Lancamento extends Model
         'type',
         'date',
         'meta_id',
+        'category_id', // <-- Adicionado
     ];
 
     /**
-     * Get the meta that owns the lancamento.
+     * Get the meta that the lancamento belongs to.
      */
     public function meta()
     {
         return $this->belongsTo(Meta::class);
+    }
+
+    /**
+     * Get the category that the lancamento belongs to.
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

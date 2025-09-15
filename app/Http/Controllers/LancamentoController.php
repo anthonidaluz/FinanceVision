@@ -9,13 +9,20 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 // A correção principal é garantir que "extends Controller" esteja aqui
-class LancamentoController extends Controller 
+class LancamentoController extends Controller
 {
+    // Em LancamentoController.php
     public function index()
     {
-        $lancamentos = Auth::user()->lancamentos()->latest('date')->get();
+        $lancamentos = Auth::user()->lancamentos()->with(['category', 'meta'])->latest('date')->get(); // Otimizado com with()
         $metas = Auth::user()->metas()->get();
-        return view('lancamentos.index', compact('lancamentos', 'metas'));
+        $categories = Auth::user()->categories()->get(); // <-- ADICIONE ESTA LINHA
+
+        return view('lancamentos.index', [
+            'lancamentos' => $lancamentos,
+            'metas' => $metas,
+            'categories' => $categories, // <-- E PASSE A VARIÁVEL AQUI
+        ]);
     }
 
     public function store(Request $request)
@@ -25,6 +32,7 @@ class LancamentoController extends Controller
             'amount' => 'required|numeric|min:0.01',
             'type' => 'required|in:receita,despesa',
             'meta_id' => 'nullable|exists:metas,id',
+            'category_id' => 'nullable|exists:categories,id', 
             'date' => 'required|date',
         ]);
 
@@ -62,9 +70,10 @@ class LancamentoController extends Controller
             'amount' => 'required|numeric|min:0.01',
             'type' => 'required|in:receita,despesa',
             'meta_id' => 'nullable|exists:metas,id',
+            'category_id' => 'nullable|exists:categories,id', 
             'date' => 'required|date',
         ]);
-        
+
         DB::transaction(function () use ($lancamento, $validated) {
             // Reverte o valor antigo da meta antiga (se existir)
             if ($lancamento->meta_id) {
@@ -103,7 +112,7 @@ class LancamentoController extends Controller
     {
         if ($type === 'receita') {
             $revert ? $meta->decrement('current_amount', $amount) : $meta->increment('current_amount', $amount);
-        } else { // despesa
+        } else { 
             $revert ? $meta->increment('current_amount', $amount) : $meta->decrement('current_amount', $amount);
         }
     }
