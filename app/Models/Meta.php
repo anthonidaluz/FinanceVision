@@ -21,6 +21,10 @@ class Meta extends Model
         'target_date',
     ];
 
+    public function lancamentos()
+    {
+        return $this->hasMany(Lancamento::class);
+    }
     /**
      * The attributes that should be cast.
      * Garante que os valores sejam sempre tratados com o tipo correto.
@@ -61,10 +65,10 @@ class Meta extends Model
             $query->whereRaw('current_amount >= target_amount');
         } elseif ($status === 'progress') {
             $query->whereRaw('current_amount < target_amount')
-                  ->where(fn ($q) => $q->where('target_date', '>=', now())->orWhereNull('target_date'));
+                ->where(fn($q) => $q->where('target_date', '>=', now())->orWhereNull('target_date'));
         } elseif ($status === 'overdue') {
             $query->whereRaw('current_amount < target_amount')
-                  ->where('target_date', '<', now());
+                ->where('target_date', '<', now());
         }
     }
 

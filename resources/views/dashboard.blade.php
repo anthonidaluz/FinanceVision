@@ -6,7 +6,6 @@
 
 @section('content')
     <div class="space-y-12">
-        {{-- SEÇÃO 1: SAUDAÇÃO E VISÃO GERAL (KPIs) --}}
         <div>
             <h2 class="text-3xl font-bold text-gray-800">Bem-vindo de volta, {{ Auth::user()->name }}!</h2>
             <p class="mt-1 text-lg text-gray-600">Aqui está o resumo financeiro para
@@ -36,7 +35,8 @@
                         <i class="fa-solid fa-scale-balanced opacity-70"></i>
                     </div>
                     <p class="text-3xl font-bold mt-2">R$
-                        {{ number_format(($totalReceitasMes ?? 0) - ($totalDespesasMes ?? 0), 2, ',', '.') }}</p>
+                        {{ number_format(($totalReceitasMes ?? 0) - ($totalDespesasMes ?? 0), 2, ',', '.') }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -133,7 +133,8 @@
                         <li class="flex items-start gap-3 opacity-50">
                             <div
                                 class="flex-shrink-0 mt-1 h-8 w-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
-                                <i class="fa-solid fa-trophy"></i></div>
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
                             <div>
                                 <p class="text-sm font-medium text-gray-800">Conquista: Mestre da Poupança!</p>
                                 <p class="text-xs text-gray-500">Funcionalidade em breve</p>
@@ -142,7 +143,8 @@
                         <li class="flex items-start gap-3 opacity-50">
                             <div
                                 class="flex-shrink-0 mt-1 h-8 w-8 rounded-full bg-green-100 text-success flex items-center justify-center">
-                                <i class="fa-solid fa-check"></i></div>
+                                <i class="fa-solid fa-check"></i>
+                            </div>
                             <div>
                                 <p class="text-sm font-medium text-gray-800">Meta concluída!</p>
                                 <p class="text-xs text-gray-500">Funcionalidade em breve</p>
@@ -151,7 +153,8 @@
                         <li class="flex items-start gap-3 opacity-50">
                             <div
                                 class="flex-shrink-0 mt-1 h-8 w-8 rounded-full bg-blue-100 text-primary flex items-center justify-center">
-                                <i class="fa-solid fa-plus"></i></div>
+                                <i class="fa-solid fa-plus"></i>
+                            </div>
                             <div>
                                 <p class="text-sm font-medium text-gray-800">Novo lançamento adicionado</p>
                                 <p class="text-xs text-gray-500">Funcionalidade em breve</p>

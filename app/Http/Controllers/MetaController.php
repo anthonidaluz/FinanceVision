@@ -8,28 +8,19 @@ use Illuminate\Support\Facades\Auth;
 
 class MetaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    // No topo do arquivo, adicione:
 
-
-    // ...
-
-    // Substitua o método index() existente por este:
+    // Em app/Http/Controllers/MetaController.php
     public function index(Request $request)
     {
-        // 1. Pega os valores dos filtros da URL (ou usa null se não existirem)
         $statusFilter = $request->query('status');
         $sortOrder = $request->query('sort');
 
-        // 2. Inicia a consulta e aplica os scopes
         $metas = Auth::user()->metas()
-            ->ofStatus($statusFilter) // Aplica o filtro de status
-            ->sortBy($sortOrder)     // Aplica a ordenação
+            ->withCount('lancamentos') // <-- A MÁGICA ACONTECE AQUI
+            ->ofStatus($statusFilter)
+            ->sortBy($sortOrder)
             ->get();
 
-        // 3. Envia os dados e os filtros selecionados de volta para a view
         return view('metas.index', [
             'metas' => $metas,
             'selectedStatus' => $statusFilter,
@@ -105,10 +96,18 @@ class MetaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+    // Em app/Http/Controllers/MetaController.php
     public function destroy(Meta $meta)
     {
-        if (Auth::user()->id !== $meta->user_id) {
+        if ($meta->user_id !== Auth::id()) {
             abort(403);
+        }
+
+        // VERIFICAÇÃO: A meta tem lançamentos associados?
+        // O método lancamentos() é o relacionamento que precisamos definir no Model.
+        if ($meta->lancamentos()->count() > 0) {
+            // Se tiver, volta para a página anterior com uma mensagem de erro.
+            return back()->with('error', 'Esta meta não pode ser excluída, pois está vinculada a um ou mais lançamentos.');
         }
 
         $meta->delete();

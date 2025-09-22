@@ -26,20 +26,23 @@ class CategoryController extends Controller
             'icon' => 'nullable|string|max:255',
             'color' => 'nullable|string|max:7',
         ]);
+
+        // Agora que o Model está correto, esta é a forma mais limpa de criar
         Auth::user()->categories()->create($validated);
+
         return redirect()->route('categorias.index')->with('success', 'Categoria criada com sucesso!');
     }
 
     public function edit(Category $category)
     {
-        if (Auth::user()->id !== $category->user_id)
+        if ($category->user_id !== Auth::id())
             abort(403);
         return view('categorias.edit', compact('category'));
     }
 
     public function update(Request $request, Category $category)
     {
-        if (Auth::user()->id !== $category->user_id)
+        if ($category->user_id !== Auth::id())
             abort(403);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -52,7 +55,7 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        if (Auth::user()->id !== $category->user_id)
+        if ($category->user_id !== Auth::id())
             abort(403);
         $category->delete();
         return redirect()->route('categorias.index')->with('success', 'Categoria excluída com sucesso!');

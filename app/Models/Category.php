@@ -13,14 +13,13 @@ class Category extends Model
 
     /**
      * The attributes that are mass assignable.
-     *
      * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'icon',
         'color',
-        'user_id', // Essencial para o salvamento
+        'user_id', 
     ];
 
     /**
