@@ -5,49 +5,50 @@
 @endsection
 
 @section('content')
-    {{-- Bloco para exibir mensagens de sucesso e erro --}}
+    {{-- Mensagens de feedback --}}
     @if(session('success'))
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md mb-6" role="alert">
-            <p>{{ session('success') }}</p>
+        <div class="bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-xl shadow-sm mb-6">
+            <p class="font-medium">{{ session('success') }}</p>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md mb-6" role="alert">
-            <p>{{ session('error') }}</p>
+        <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl shadow-sm mb-6">
+            <p class="font-medium">{{ session('error') }}</p>
         </div>
     @endif
 
     {{-- Filtros --}}
-    <div class="bg-white p-6 rounded-xl shadow-md mb-8">
-        <form action="{{ route('metas.index') }}" method="GET" class="flex flex-col sm:flex-row items-center gap-4">
-            <div class="w-full sm:w-1/3">
-                <label for="status" class="block text-sm font-medium text-gray-700">Filtrar por Status</label>
+    <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 mb-10">
+        <form action="{{ route('metas.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-end">
+            <div>
+                <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Filtrar por Status</label>
                 <select name="status" id="status"
-                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary">
                     <option value="">Todos</option>
                     <option value="progress" @selected($selectedStatus == 'progress')>Em Progresso</option>
                     <option value="completed" @selected($selectedStatus == 'completed')>Concluídas</option>
                     <option value="overdue" @selected($selectedStatus == 'overdue')>Atrasadas</option>
                 </select>
             </div>
-            <div class="w-full sm:w-1/3">
-                <label for="sort" class="block text-sm font-medium text-gray-700">Ordenar por</label>
+            <div>
+                <label for="sort" class="block text-sm font-semibold text-gray-700 mb-2">Ordenar por</label>
                 <select name="sort" id="sort"
-                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary">
                     <option value="newest" @selected($selectedSort == 'newest')>Mais Recentes</option>
                     <option value="closest_due_date" @selected($selectedSort == 'closest_due_date')>Prazo Final</option>
                 </select>
             </div>
-            <div class="w-full sm:w-auto mt-4 sm:mt-0 sm:self-end">
+            <div>
                 <button type="submit"
-                    class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                    Filtrar
+                    class="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-primary/90 transition w-full sm:w-auto">
+                    <i class="fa-solid fa-filter mr-2"></i> Filtrar
                 </button>
             </div>
         </form>
     </div>
 
+    {{-- Lista de Metas --}}
     <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         @forelse ($metas as $meta)
             @php
@@ -59,60 +60,64 @@
                 if ($isOverdue)
                     $borderColorClass = 'border-red-500';
             @endphp
+
             <article
-                class="bg-white rounded-xl shadow-md border-t-4 {{ $borderColorClass }} p-6 flex flex-col sm:flex-row gap-6">
-                <div class="flex-grow flex flex-col">
+                class="bg-white rounded-2xl shadow-md border-t-4 {{ $borderColorClass }} p-6 flex flex-col sm:flex-row gap-6">
+                <div class="flex-grow flex flex-col justify-between">
                     <div>
                         <p class="text-sm font-semibold text-gray-500">META {{ $loop->iteration }}</p>
-                        <h3 class="text-xl font-bold text-gray-800 mt-1">{{ $meta->name }}</h3>
+                        <h3 class="text-xl font-bold text-gray-900 mt-1">{{ $meta->name }}</h3>
+
                         <div class="text-sm space-y-2 mt-4 text-gray-600">
                             <p>
-                                <strong class="font-medium text-gray-700">Status:</strong>
+                                <strong class="text-gray-700">Status:</strong>
                                 <span
                                     class="font-semibold px-2 py-1 rounded-full text-xs
                                             {{ $isCompleted ? 'bg-green-100 text-green-800' : ($isOverdue ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
                                     {{ $isCompleted ? 'Concluída' : ($isOverdue ? 'Atrasada' : 'Em Progresso') }}
                                 </span>
                             </p>
-                            <p><strong class="font-medium text-gray-700">Objetivo:</strong> R$
+                            <p><strong class="text-gray-700">Objetivo:</strong> R$
                                 {{ number_format($meta->target_amount, 2, ',', '.') }}</p>
-                            <p><strong class="font-medium text-gray-700">Poupado:</strong> R$
+                            <p><strong class="text-gray-700">Poupado:</strong> R$
                                 {{ number_format($meta->current_amount, 2, ',', '.') }}</p>
-                            <p><strong class="font-medium text-gray-700">Prazo:</strong>
+                            <p><strong class="text-gray-700">Prazo:</strong>
                                 {{ $meta->target_date ? \Carbon\Carbon::parse($meta->target_date)->format('d/m/Y') : 'Sem prazo' }}
                             </p>
                         </div>
                     </div>
 
-                    {{-- ÁREA DE AÇÕES ATUALIZADA --}}
-                    <div class="flex items-center gap-2 mt-6 pt-4 border-t border-gray-200 mt-auto">
+                    {{-- Ações --}}
+                    <div class="flex items-center gap-3 mt-6 pt-4 border-t border-gray-200">
                         <a href="{{ route('metas.edit', $meta) }}"
-                            class="inline-flex items-center px-4 py-2 bg-primary border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-opacity-90">Editar</a>
+                            class="inline-flex items-center px-4 py-2 bg-primary text-white text-xs font-semibold rounded-md shadow-sm hover:bg-primary/90 transition ">
+                            <i class="fa-solid fa-pencil mr-2"></i> Editar
+                        </a>
 
                         @if($meta->lancamentos_count > 0)
-                            {{-- Botão desabilitado com dica --}}
                             <button type="button" disabled
-                                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-400 uppercase tracking-widest cursor-not-allowed"
-                                title="Esta meta não pode ser excluída pois está vinculada a {{ $meta->lancamentos_count }} lançamento(s).">
-                                Excluir
+                                class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-400 text-xs font-semibold rounded-md cursor-not-allowed"
+                                title="Esta meta está vinculada a {{ $meta->lancamentos_count }} lançamento(s)">
+                                <i class="fa-solid fa-lock mr-2"></i> Excluir
                             </button>
                         @else
-                            {{-- Formulário de exclusão funcional --}}
                             <form action="{{ route('metas.destroy', $meta) }}" method="POST"
                                 onsubmit="return confirm('Tem certeza que deseja excluir esta meta?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">
-                                    Excluir
+                                    class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 text-xs font-semibold rounded-md hover:bg-gray-50 transition">
+                                    <i class="fa-solid fa-trash mr-2"></i> Excluir
                                 </button>
                             </form>
                         @endif
                     </div>
                 </div>
+
+                {{-- Gráfico de progresso --}}
                 <div class="flex-shrink-0 flex flex-col items-center justify-center gap-2">
                     <div class="donut-chart w-32 h-32 rounded-full relative flex justify-center items-center"
-                        style="--p: {{ $meta->progress }}; background: conic-gradient(var(--success, #28a745) 0% calc(var(--p) * 1%), var(--danger, #e74c3c) calc(var(--p) * 1%) 100%);">
+                        style="--p: {{ $meta->progress }}; background: conic-gradient(var(--success, #28a745) 0% calc(var(--p) * 1%), var(--danger, #e74c3c) calc(var(--p) * 1%) 100%)">
                         <div class="w-[80%] h-[80%] bg-white rounded-full"></div>
                         <span class="absolute text-2xl font-bold text-gray-700">{{ round($meta->progress) }}%</span>
                     </div>
@@ -120,13 +125,14 @@
                 </div>
             </article>
         @empty
-            <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-12 text-center">
+            <div class="lg:col-span-2 bg-white rounded-2xl shadow-md p-12 text-center">
                 <i class="fa-solid fa-bullseye text-5xl text-gray-300 mb-4"></i>
                 <h3 class="text-xl font-semibold text-gray-700">Nenhuma meta encontrada</h3>
                 <p class="text-gray-500 mt-2">Que tal adicionar sua primeira meta usando o botão abaixo?</p>
             </div>
         @endforelse
 
+        {{-- Botão Adicionar Meta --}}
         <a href="{{ route('metas.create') }}"
             class="border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-primary hover:text-primary transition-all min-h-[200px] py-10">
             <i class="fa-solid fa-plus text-4xl"></i>

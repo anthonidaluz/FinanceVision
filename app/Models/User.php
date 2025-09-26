@@ -35,8 +35,9 @@ class User extends Authenticatable
 
     public function categories()
     {
-        return $this->hasMany(Category::class);
+        return $this->hasMany(Category::class, 'user_id');
     }
+
 
     /**
      * The attributes that should be hidden for serialization.

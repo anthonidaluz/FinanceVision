@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LancamentoController;
 use App\Http\Controllers\MetaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 // Página inicial
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 // URLs personalizadas para as páginas de autenticação do Breeze.
@@ -49,13 +50,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Rotas de Recursos (CRUDs)
     Route::resource('lancamentos', LancamentoController::class);
+    Route::get('/relatorios', [ReportController::class, 'index'])->name('relatorios.index');
     Route::resource('categorias', CategoryController::class);
     Route::resource('metas', MetaController::class);
-
-    // Rotas de Páginas Simples
-    Route::get('/relatorios', function () {
-        return view('relatorios');
-    })->name('relatorios');
 
     Route::get('/configuracoes', function () {
         return view('configuracoes');
