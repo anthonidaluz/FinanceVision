@@ -5,118 +5,79 @@
 @endsection
 
 @section('content')
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 
         {{-- Cabeçalho da Página --}}
-        <div class="text-center mb-12">
-            <h2 class="text-4xl font-extrabold text-gray-900 tracking-tight">📊 Central de Relatórios</h2>
+        <div class="text-center">
+            <h2 class="text-4xl font-bold text-gray-900 tracking-tight">📊 Central de Relatórios</h2>
             <p class="mt-3 text-lg text-gray-500 max-w-2xl mx-auto">
-                Visualize seus dados de forma clara, identifique padrões e tome decisões estratégicas.
+                Visualize seus dados com clareza, identifique padrões e tome decisões estratégicas.
             </p>
         </div>
 
         {{-- Filtros Principais --}}
-        <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-10">
-            <form class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-end">
+        <div class="bg-white p-10 rounded-3xl shadow-xl border border-gray-100">
+            <form action="{{ route('relatorios.gerar') }}" method="GET"
+                class="grid grid-cols-1 md:grid-cols-4 gap-8 items-end">
+
+                {{-- Tipo de Relatório --}}
                 <div>
-                    <label for="report_type" class="block text-sm font-semibold text-gray-700">Tipo de Relatório</label>
+                    <label for="report_type" class="block text-sm font-semibold text-gray-700 mb-2">Tipo de
+                        Relatório</label>
                     <select id="report_type" name="report_type"
-                        class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm">
-                        <option>Despesas por Categoria</option>
-                        <option disabled>Fluxo de Caixa (em breve)</option>
-                        <option disabled>Evolução Patrimonial (em breve)</option>
+                        class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary focus:border-primary text-sm">
+                        <option value="fluxo">📈 Fluxo de Caixa</option>
+                        <option value="metas">🎯 Progresso de Metas</option>
                     </select>
                 </div>
 
+                {{-- Data de Início --}}
                 <div>
-                    <label for="period" class="block text-sm font-semibold text-gray-700">Período</label>
-                    <select id="period" name="period"
-                        class="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm">
-                        <option>Este Mês</option>
-                        <option>Mês Passado</option>
-                        <option>Este Ano</option>
-                        <option>Período Personalizado</option>
-                    </select>
+                    <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">Data Inicial</label>
+                    <input type="date" id="start_date" name="start_date"
+                        class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary focus:border-primary text-sm">
                 </div>
 
+                {{-- Data de Fim --}}
+                <div>
+                    <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">Data Final</label>
+                    <input type="date" id="end_date" name="end_date"
+                        class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary focus:border-primary text-sm">
+                </div>
+
+                {{-- Botão --}}
                 <div class="flex">
                     <button type="submit"
-                        class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-lg shadow-md text-sm font-semibold text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition">
-                        <i class="fa-solid fa-filter mr-2"></i>
-                        Gerar Relatório
+                        class="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl shadow-md text-sm font-semibold text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition">
+                        <i class="fa-solid fa-chart-line mr-2"></i> Gerar Relatório
                     </button>
                 </div>
             </form>
         </div>
 
-        {{-- Outros Relatórios (Cards) --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+        {{-- Sugestões de Relatórios (Cards) --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100 hover:shadow-lg transition">
                 <div class="flex items-center gap-4">
-                    <div
-                        class="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-xl bg-green-100 text-green-600">
+                    <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-green-100 text-green-600">
                         <i class="fa-solid fa-money-bill-trend-up fa-lg"></i>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900">Fluxo de Caixa Mensal</h3>
+                        <h3 class="font-semibold text-gray-900">Fluxo de Caixa</h3>
                         <p class="text-sm text-gray-500">Compare receitas e despesas ao longo do tempo.</p>
                     </div>
                 </div>
-                <button disabled
-                    class="mt-5 w-full py-2 rounded-lg text-sm font-semibold text-gray-400 bg-gray-100 cursor-not-allowed">
-                    Em Breve
-                </button>
             </div>
 
             <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100 hover:shadow-lg transition">
                 <div class="flex items-center gap-4">
-                    <div
-                        class="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-xl bg-yellow-100 text-yellow-600">
+                    <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-yellow-100 text-yellow-600">
                         <i class="fa-solid fa-bullseye fa-lg"></i>
                     </div>
                     <div>
                         <h3 class="font-semibold text-gray-900">Progresso de Metas</h3>
                         <p class="text-sm text-gray-500">Acompanhe a evolução das suas metas financeiras.</p>
                     </div>
-                </div>
-                <button disabled
-                    class="mt-5 w-full py-2 rounded-lg text-sm font-semibold text-gray-400 bg-gray-100 cursor-not-allowed">
-                    Em Breve
-                </button>
-            </div>
-        </div>
-
-        {{-- Relatório Principal --}}
-        <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-            <div class="flex flex-col lg:flex-row items-center gap-10">
-                <div class="w-full lg:w-1/3">
-                    <h3 class="text-xl font-bold text-gray-900 mb-6">Despesas por Categoria <span
-                            class="text-gray-400">(Set/2025)</span></h3>
-                    {{-- Placeholder para o gráfico --}}
-                    <div
-                        class="relative h-64 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg">
-                        <div class="text-center text-gray-400">
-                            <i class="fa-solid fa-chart-pie text-6xl"></i>
-                            <p class="mt-2 text-sm">Gráfico será exibido aqui</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="w-full lg:flex-1">
-                    <ul class="divide-y divide-gray-100">
-                        @forelse ($despesasPorCategoria ?? [] as $categoria => $total)
-                            <li class="flex justify-between items-center py-3 text-sm">
-                                <div class="flex items-center">
-                                    <span class="inline-block w-3 h-3 rounded-full bg-primary mr-3"></span>
-                                    <span class="text-gray-700">{{ $categoria }}</span>
-                                </div>
-                                <span class="font-semibold text-gray-900">R$ {{ number_format($total, 2, ',', '.') }}</span>
-                            </li>
-                        @empty
-                            <li class="text-center text-gray-500 py-6">Nenhuma despesa encontrada para o período selecionado.
-                            </li>
-                        @endforelse
-                    </ul>
                 </div>
             </div>
         </div>

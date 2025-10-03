@@ -15,15 +15,20 @@ class Lancamento extends Model
         'type',
         'date',
         'meta_id',
-        'category_id', 
+        'category_id',
+        'payment_method',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function meta()
     {
         return $this->belongsTo(Meta::class);
     }
 
-    // Essencial que este método exista
     public function category()
     {
         return $this->belongsTo(Category::class);

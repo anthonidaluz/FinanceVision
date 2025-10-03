@@ -29,6 +29,14 @@
         <li><a href="{{ route('dicas') }}"
                 class="flex items-center gap-3 px-4 py-2 rounded-md transition-colors text-sm font-medium {{ request()->routeIs('dicas') ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900' }}"><i
                     class="fa-solid fa-lightbulb w-5 text-center"></i> Dicas</a></li>
+        <li>
+            <a href="{{ route('achievements.index') }}"
+                class="flex items-center gap-3 px-4 py-2 rounded-md transition-colors text-sm font-medium 
+       {{ request()->routeIs('achievements.*') ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900' }}">
+                <i class="fa-solid fa-trophy w-5 text-center"></i> Conquistas
+            </a>
+        </li>
+
         <li><a href="{{ route('configuracoes') }}"
                 class="flex items-center gap-3 px-4 py-2 rounded-md transition-colors text-sm font-medium {{ request()->routeIs('configuracoes') ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900' }}"><i
                     class="fa-solid fa-gear w-5 text-center"></i> Configurações</a></li>

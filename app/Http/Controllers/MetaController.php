@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MetaCreated; 
 use App\Models\Meta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,36 +10,31 @@ use Illuminate\Support\Facades\Auth;
 class MetaController extends Controller
 {
 
-    // Em app/Http/Controllers/MetaController.php
+
     public function index(Request $request)
     {
-        $statusFilter = $request->query('status');
-        $sortOrder = $request->query('sort');
+        // CORREÇÃO: Renomeado para corresponder ao que a view e o compact() esperam
+        $selectedStatus = $request->query('status');
+        $selectedSort = $request->query('sort');
 
         $metas = Auth::user()->metas()
-            ->withCount('lancamentos') // <-- A MÁGICA ACONTECE AQUI
-            ->ofStatus($statusFilter)
-            ->sortBy($sortOrder)
+            ->withCount('lancamentos')
+            ->ofStatus($selectedStatus) 
+            ->sortBy($selectedSort)    
             ->get();
 
-        return view('metas.index', [
-            'metas' => $metas,
-            'selectedStatus' => $statusFilter,
-            'selectedSort' => $sortOrder,
-        ]);
+        return view('metas.index', compact(
+            'metas',
+            'selectedStatus',
+            'selectedSort'
+        ));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('metas.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -47,38 +43,30 @@ class MetaController extends Controller
             'target_date' => 'nullable|date',
         ]);
 
-        Auth::user()->metas()->create($validated);
+        $meta = Auth::user()->metas()->create($validated);
+
+        // ADICIONADO: Dispara o evento para o sistema de gamificação
+        MetaCreated::dispatch($meta);
 
         return redirect()->route('metas.index')->with('success', 'Nova meta criada com sucesso!');
     }
 
-    /**
-     * Display the specified resource.
-     * (We are not using this one for now)
-     */
     public function show(Meta $meta)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Meta $meta)
     {
-        if (Auth::user()->id !== $meta->user_id) {
+        if ($meta->user_id !== Auth::id()) {
             abort(403);
         }
-
-        return view('metas.edit', ['meta' => $meta]);
+        return view('metas.edit', compact('meta'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Meta $meta)
     {
-        if (Auth::user()->id !== $meta->user_id) {
+        if ($meta->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -89,29 +77,20 @@ class MetaController extends Controller
         ]);
 
         $meta->update($validated);
-
         return redirect()->route('metas.index')->with('success', 'Meta atualizada com sucesso!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    // Em app/Http/Controllers/MetaController.php
     public function destroy(Meta $meta)
     {
         if ($meta->user_id !== Auth::id()) {
             abort(403);
         }
 
-        // VERIFICAÇÃO: A meta tem lançamentos associados?
-        // O método lancamentos() é o relacionamento que precisamos definir no Model.
         if ($meta->lancamentos()->count() > 0) {
-            // Se tiver, volta para a página anterior com uma mensagem de erro.
             return back()->with('error', 'Esta meta não pode ser excluída, pois está vinculada a um ou mais lançamentos.');
         }
 
         $meta->delete();
-
         return redirect()->route('metas.index')->with('success', 'Meta excluída com sucesso!');
     }
 }

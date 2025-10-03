@@ -6,6 +6,7 @@ use App\Models\Lancamento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Events\LancamentoCreated;
 
 class LancamentoController extends Controller
 {
@@ -34,22 +35,27 @@ class LancamentoController extends Controller
             'amount' => 'required|numeric|min:0.01',
             'type' => 'required|in:receita,despesa',
             'date' => 'required|date',
-            'category_id' => 'nullable|exists:categories,id', // Valida a categoria
+            'category_id' => 'nullable|exists:categories,id',
             'meta_id' => 'nullable|exists:metas,id',
         ]);
 
-        DB::transaction(function () use ($validated) {
+        // Usamos uma transaction para garantir a integridade dos dados
+        DB::transaction(function () use ($validated, $request) {
+            // 1. Cria o lançamento
             $lancamento = Auth::user()->lancamentos()->create($validated);
 
+            // 2. Atualiza o progresso da meta, se houver
             if (isset($validated['meta_id'])) {
                 $meta = Auth::user()->metas()->findOrFail($validated['meta_id']);
                 if ($lancamento->type === 'receita') {
                     $meta->increment('current_amount', $lancamento->amount);
-                } else {
-                    // Para despesas, o correto seria subtrair do progresso, mas isso depende da regra de negócio.
-                    // Por enquanto, vamos manter a lógica original focada em poupança (receitas).
                 }
+                // A lógica para despesas em metas pode ser adicionada aqui no futuro
             }
+
+            // 3. DISPARA O EVENTO DE GAMIFICAÇÃO
+            // Anuncia para a aplicação que um novo lançamento foi criado.
+            LancamentoCreated::dispatch($lancamento);
         });
 
         return redirect()->route('lancamentos.index')->with('success', 'Lançamento adicionado com sucesso!');

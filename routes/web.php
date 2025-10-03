@@ -51,8 +51,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rotas de Recursos (CRUDs)
     Route::resource('lancamentos', LancamentoController::class);
     Route::get('/relatorios', [ReportController::class, 'index'])->name('relatorios.index');
+
+    Route::get('/relatorios/fluxo-caixa', [ReportController::class, 'fluxoCaixa'])
+        ->name('relatorios.fluxo-caixa');
+    Route::get('/relatorios/gerar', [ReportController::class, 'gerar'])->name('relatorios.gerar');
+
+
     Route::resource('categorias', CategoryController::class);
     Route::resource('metas', MetaController::class);
+
+    Route::get('/conquistas', [DashboardController::class, 'achievements'])->name('achievements.index');
 
     Route::get('/configuracoes', function () {
         return view('configuracoes');

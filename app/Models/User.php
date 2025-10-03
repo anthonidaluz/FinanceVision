@@ -28,6 +28,11 @@ class User extends Authenticatable
         return $this->hasMany(Lancamento::class);
     }
 
+    public function achievements()
+    {
+        return $this->belongsToMany(Achievement::class, 'user_achievement')->withTimestamps();
+    }
+
     public function metas()
     {
         return $this->hasMany(Meta::class);

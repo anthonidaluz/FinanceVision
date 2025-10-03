@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CategoryCreated; // Importa a classe do nosso evento
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +14,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::where('user_id', Auth::id())
+        $categories = Auth::user()->categories()
             ->withCount('lancamentos')
             ->latest()
             ->get();
@@ -30,7 +31,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Armazena uma nova categoria vinculada ao usuário logado.
+     * Armazena uma nova categoria e dispara o evento de criação.
      */
     public function store(Request $request)
     {
@@ -40,10 +41,13 @@ class CategoryController extends Controller
             'color' => 'nullable|string|max:7',
         ]);
 
-        Category::create([
-            ...$validated,
-            'user_id' => Auth::id(),
-        ]);
+        // Cria a categoria usando o relacionamento, que é a forma mais limpa e segura
+        $category = Auth::user()->categories()->create($validated);
+
+        // ### ATUALIZAÇÃO PRINCIPAL ###
+        // Dispara o evento, "anunciando" que uma nova categoria foi criada.
+        // O nosso Listener de conquistas vai "ouvir" este anúncio.
+        CategoryCreated::dispatch($category);
 
         return redirect()
             ->route('categorias.index')
@@ -53,19 +57,19 @@ class CategoryController extends Controller
     /**
      * Exibe o formulário de edição da categoria.
      */
-    public function edit(Category $category)
+    public function edit(Category $categoria)
     {
-        $this->authorizeAccess($category);
+        $this->authorizeAccess($categoria);
 
-        return view('categorias.edit', compact('category'));
+        return view('categorias.edit', ['category' => $categoria]);
     }
 
     /**
      * Atualiza os dados da categoria.
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, Category $categoria)
     {
-        $this->authorizeAccess($category);
+        $this->authorizeAccess($categoria);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -73,7 +77,7 @@ class CategoryController extends Controller
             'color' => 'nullable|string|max:7',
         ]);
 
-        $category->update($validated);
+        $categoria->update($validated);
 
         return redirect()
             ->route('categorias.index')
@@ -83,11 +87,11 @@ class CategoryController extends Controller
     /**
      * Remove a categoria do banco de dados.
      */
-    public function destroy(Category $category)
+    public function destroy(Category $categoria)
     {
-        $this->authorizeAccess($category);
+        $this->authorizeAccess($categoria);
 
-        $category->delete();
+        $categoria->delete();
 
         return redirect()
             ->route('categorias.index')
@@ -100,7 +104,7 @@ class CategoryController extends Controller
     protected function authorizeAccess(Category $category)
     {
         if ($category->user_id !== Auth::id()) {
-            abort(403, 'Você não tem permissão para acessar esta categoria.');
+            abort(403);
         }
     }
 }

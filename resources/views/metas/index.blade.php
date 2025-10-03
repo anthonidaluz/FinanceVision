@@ -5,16 +5,16 @@
 @endsection
 
 @section('content')
-    {{-- Mensagens de feedback --}}
+    {{-- Feedback --}}
     @if(session('success'))
         <div class="bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-xl shadow-sm mb-6">
-            <p class="font-medium">{{ session('success') }}</p>
+            <i class="fa-solid fa-check-circle mr-2"></i> <span class="font-medium">{{ session('success') }}</span>
         </div>
     @endif
 
     @if(session('error'))
         <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl shadow-sm mb-6">
-            <p class="font-medium">{{ session('error') }}</p>
+            <i class="fa-solid fa-exclamation-circle mr-2"></i> <span class="font-medium">{{ session('error') }}</span>
         </div>
     @endif
 
@@ -54,11 +54,10 @@
             @php
                 $isCompleted = $meta->progress >= 100;
                 $isOverdue = !$isCompleted && $meta->target_date && \Carbon\Carbon::parse($meta->target_date)->isPast();
-                $borderColorClass = 'border-yellow-400';
-                if ($isCompleted)
-                    $borderColorClass = 'border-green-500';
-                if ($isOverdue)
-                    $borderColorClass = 'border-red-500';
+                $statusLabel = $isCompleted ? 'Concluída' : ($isOverdue ? 'Atrasada' : 'Em Progresso');
+                $statusColor = $isCompleted ? 'green' : ($isOverdue ? 'red' : 'yellow');
+                $borderColorClass = "border-{$statusColor}-500";
+                $badgeClass = "bg-{$statusColor}-100 text-{$statusColor}-800";
             @endphp
 
             <article
@@ -71,10 +70,8 @@
                         <div class="text-sm space-y-2 mt-4 text-gray-600">
                             <p>
                                 <strong class="text-gray-700">Status:</strong>
-                                <span
-                                    class="font-semibold px-2 py-1 rounded-full text-xs
-                                            {{ $isCompleted ? 'bg-green-100 text-green-800' : ($isOverdue ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
-                                    {{ $isCompleted ? 'Concluída' : ($isOverdue ? 'Atrasada' : 'Em Progresso') }}
+                                <span class="font-semibold px-2 py-1 rounded-full text-xs {{ $badgeClass }}">
+                                    {{ $statusLabel }}
                                 </span>
                             </p>
                             <p><strong class="text-gray-700">Objetivo:</strong> R$
@@ -90,7 +87,7 @@
                     {{-- Ações --}}
                     <div class="flex items-center gap-3 mt-6 pt-4 border-t border-gray-200">
                         <a href="{{ route('metas.edit', $meta) }}"
-                            class="inline-flex items-center px-4 py-2 bg-primary text-white text-xs font-semibold rounded-md shadow-sm hover:bg-primary/90 transition ">
+                            class="inline-flex items-center px-4 py-2 bg-primary text-white text-xs font-semibold rounded-md shadow-sm hover:bg-primary/90 transition">
                             <i class="fa-solid fa-pencil mr-2"></i> Editar
                         </a>
 

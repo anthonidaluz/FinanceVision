@@ -135,30 +135,32 @@
                     </div>
                 </div>
 
+                {{-- Em resources/views/dashboard.blade.php --}}
+
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <h4 class="text-xl font-semibold text-gray-800 mb-4">Atividade Recente</h4>
+
+                    {{-- ### ÁREA ATUALIZADA ### --}}
                     <ul class="space-y-4">
-                        <li class="flex items-start gap-3 opacity-50">
-                            <div
-                                class="flex-shrink-0 mt-1 h-8 w-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
-                                <i class="fa-solid fa-trophy"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">Conquista: Mestre da Poupança!</p>
-                                <p class="text-xs text-gray-500">Funcionalidade em breve</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3 opacity-50">
-                            <div
-                                class="flex-shrink-0 mt-1 h-8 w-8 rounded-full bg-green-100 text-success flex items-center justify-center">
-                                <i class="fa-solid fa-check"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">Meta concluída!</p>
-                                <p class="text-xs text-gray-500">Funcionalidade em breve</p>
-                            </div>
-                        </li>
+                        @forelse ($recentAchievements as $achievement)
+                            <li class="flex items-start gap-3">
+                                <div
+                                    class="flex-shrink-0 mt-1 h-8 w-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                                    <i class="{{ $achievement->icon }}"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">{{ $achievement->name }}</p>
+                                    <p class="text-xs text-gray-500">Desbloqueado
+                                        {{ $achievement->pivot->created_at->diffForHumans() }}</p>
+                                </div>
+                            </li>
+                        @empty
+                            <li class="text-center text-sm text-gray-500 py-4">
+                                Nenhuma conquista desbloqueada ainda. Continue registrando!
+                            </li>
+                        @endforelse
                     </ul>
+                    {{-- ### FIM DA ÁREA ATUALIZADA ### --}}
                 </div>
             </div>
         </div>

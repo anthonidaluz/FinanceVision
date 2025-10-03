@@ -14,17 +14,13 @@ class DashboardController extends Controller
         $user = Auth::user();
         $today = Carbon::now();
 
+        // --- DADOS PARA OS KPIs ---
         $totalReceitasMes = $user->lancamentos()->where('type', 'receita')->whereMonth('date', $today->month)->whereYear('date', $today->year)->sum('amount');
         $totalDespesasMes = $user->lancamentos()->where('type', 'despesa')->whereMonth('date', $today->month)->whereYear('date', $today->year)->sum('amount');
         $saldoAtual = $user->lancamentos()->where('type', 'receita')->sum('amount') - $user->lancamentos()->where('type', 'despesa')->sum('amount');
 
-        $despesasPorCategoria = $user->lancamentos()
-            ->where('type', 'despesa')->whereMonth('date', $today->month)->whereYear('date', $today->year)
-            ->whereNotNull('category_id')
-            ->join('categories', 'lancamentos.category_id', '=', 'categories.id')
-            ->select('categories.name', DB::raw('SUM(lancamentos.amount) as total'))
-            ->groupBy('categories.name')->pluck('total', 'name');
-
+        // --- DADOS PARA OS GRÁFICOS ---
+        $despesasPorCategoria = $user->lancamentos()->where('type', 'despesa')->whereMonth('date', $today->month)->whereYear('date', $today->year)->whereNotNull('category_id')->join('categories', 'lancamentos.category_id', '=', 'categories.id')->select('categories.name', DB::raw('SUM(lancamentos.amount) as total'))->groupBy('categories.name')->pluck('total', 'name');
         $evolutionData = ['labels' => [], 'receitas' => [], 'despesas' => []];
         for ($i = 5; $i >= 0; $i--) {
             $date = Carbon::now()->subMonths($i);
@@ -33,7 +29,11 @@ class DashboardController extends Controller
             $evolutionData['despesas'][] = $user->lancamentos()->where('type', 'despesa')->whereYear('date', $date->year)->whereMonth('date', $date->month)->sum('amount');
         }
 
+        // --- DADOS PARA AS METAS ---
         $metasEmAndamento = $user->metas()->whereRaw('current_amount < target_amount')->orderByRaw('(current_amount / target_amount) DESC')->limit(3)->get();
+
+        // --- DADOS PARA ATIVIDADE RECENTE (NOVO) ---
+        $recentAchievements = $user->achievements()->latest('user_achievement.created_at')->limit(3)->get();
 
         return view('dashboard', [
             'totalReceitasMes' => $totalReceitasMes,
@@ -45,6 +45,17 @@ class DashboardController extends Controller
             'evolutionReceitas' => json_encode($evolutionData['receitas']),
             'evolutionDespesas' => json_encode($evolutionData['despesas']),
             'metasEmAndamento' => $metasEmAndamento,
+            'recentAchievements' => $recentAchievements, // <-- Variável enviada para a view
         ]);
+    }
+
+    /**
+     * Exibe a página de conquistas do usuário.
+     */
+    public function achievements()
+    {
+        $achievements = Auth::user()->achievements()->latest('user_achievement.created_at')->get();
+
+        return view('achievements.index', compact('achievements'));
     }
 }
