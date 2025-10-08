@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LancamentoController;
+use App\Http\Controllers\GoogleLoginController;
 use App\Http\Controllers\MetaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -33,7 +34,8 @@ Route::get('/dicas', function () {
     return view('dicas');
 })->name('dicas');
 
-
+Route::get('/google/redirect', [GoogleLoginController::class, 'redirectToGoogle'])->name('google.redirect');
+Route::get('/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])->name('google.callback');
 /*
 |--------------------------------------------------------------------------
 | Rotas Protegidas (Exigem Autenticação)
@@ -56,9 +58,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('relatorios.fluxo-caixa');
     Route::get('/relatorios/gerar', [ReportController::class, 'gerar'])->name('relatorios.gerar');
 
-
     Route::resource('categorias', CategoryController::class);
     Route::resource('metas', MetaController::class);
+
+    // Rotas para o Login com Google
 
     Route::get('/conquistas', [DashboardController::class, 'achievements'])->name('achievements.index');
 
@@ -66,7 +69,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('configuracoes');
     })->name('configuracoes');
 });
-
 
 /*
 |--------------------------------------------------------------------------

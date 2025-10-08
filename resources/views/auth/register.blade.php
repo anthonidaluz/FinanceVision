@@ -70,14 +70,14 @@
                 </div>
 
                 {{-- BOTÃO DO GOOGLE --}}
-                <a href="#" class="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-md 
-                          text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 
-                          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary 
-                          transition duration-200">
-                    <img class="h-5 w-5"
+                <a href="{{ route('google.redirect') }}"
+                    class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+
+                    <img class="h-5 w-5 mr-3"
                         src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
                         alt="Logo do Google">
-                    Continuar com Google
+
+                    <span>Continuar com o Google</span>
                 </a>
             </div>
         </form>
