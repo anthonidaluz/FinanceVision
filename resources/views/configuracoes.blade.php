@@ -19,7 +19,7 @@
 @section('content')
     <div class="max-w-4xl mx-auto">
         <div class="text-center mb-10">
-            <h2 class="text-4xl font-bold text-gray-800">Gerencie sua Conta</h2>
+            <h2 class="text-4xl font-bold text-gray-800">⚙️ Gerenciar Minha Conta</h2>
             <p class="mt-2 text-lg text-gray-600">Ajuste suas preferências e informações de perfil.</p>
         </div>
 

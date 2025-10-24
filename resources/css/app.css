@@ -12,3 +12,25 @@
 .donut-chart {
   transition: --p 1s ease-out;
 }
+
+/* Estilos customizados para conquistas */
+#toast-container .toast.toast-bronze {
+  background: linear-gradient(135deg, #cd7f32, #a97142) !important;
+  color: #fff !important;
+  border-left: 6px solid #8b5a2b !important;
+  box-shadow: 0 0 12px rgba(205, 127, 50, 0.8) !important;
+}
+
+#toast-container .toast.toast-prata {
+  background: linear-gradient(135deg, #c0c0c0, #a9a9a9) !important;
+  color: #000 !important;
+  border-left: 6px solid #808080 !important;
+  box-shadow: 0 0 12px rgba(192, 192, 192, 0.8) !important;
+}
+
+#toast-container .toast.toast-ouro {
+  background: linear-gradient(135deg, #ffd700, #ffcc00) !important;
+  color: #000 !important;
+  border-left: 6px solid #daa520 !important;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.9) !important;
+}

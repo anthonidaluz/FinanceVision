@@ -2,20 +2,20 @@
 
 namespace App\Listeners;
 
-use App\Events\CategoryCreated;
+use App\Events\DicasViewed;
 use App\Models\Achievement;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
-class CheckCategoryAchievements
+class CheckDicasAchievements
 {
-    public function handle(CategoryCreated $event): void
+    /**
+     * Handle the event.
+     */
+    public function handle(DicasViewed $event): void
     {
-        $user = $event->category->user;
-        $categoryCount = $user->categories()->count();
-
-        // BRONZE 2: "Organizador(a)"
-        $this->awardAchievement($user, 'organizador-5-categorias', fn() => $categoryCount >= 5);
+        // A lógica principal agora é só chamar a função auxiliar
+        $this->awardAchievement($event->user, 'sede-de-conhecimento', fn() => true);
     }
 
     /**
@@ -31,7 +31,7 @@ class CheckCategoryAchievements
             return;
         }
 
-        // 2. O utilizador já tem esta conquista?
+        // 2. O usuário já tem esta conquista?
         if ($user->achievements()->where('achievement_id', $achievement->id)->exists()) {
             return;
         }
@@ -39,7 +39,7 @@ class CheckCategoryAchievements
         // 3. A condição específica para ganhar foi atendida?
         if ($condition()) {
             $user->achievements()->attach($achievement->id);
-            Log::info("Utilizador {$user->id} desbloqueou: {$achievement->name}");
+            Log::info("Usuário {$user->id} desbloqueou: {$achievement->name}");
 
             // ✅ Salva o OBJETO na sessão (não array)
             session()->flash('new_achievement', $achievement);

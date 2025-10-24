@@ -3,25 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lancamento;
+use App\Models\Meta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Events\LancamentoCreated;
+use App\Events\MetaCompleted;
 
 class LancamentoController extends Controller
 {
-    /**
-     * Exibe a lista de lançamentos e o formulário de criação.
-     */
-    public function index()
+    public function index(Request $request) // Adicionamos a Request
     {
         $user = Auth::user();
 
-        // Usamos with() para otimizar as buscas, carregando os relacionamentos de uma vez
-        $lancamentos = $user->lancamentos()->with(['category', 'meta'])->latest('date')->get();
-        $metas = $user->metas()->get();
-        $categories = $user->categories()->orderBy('name')->get(); // Buscamos as categorias
+        // 1. MUDANÇA: Trocamos ->get() por ->paginate(10)
+        $lancamentos = $user->lancamentos()
+            ->with(['category', 'meta'])
+            ->latest('date')
+            ->paginate(10); // Pode ajustar o número (ex: 5 ou 15)
 
+        $metas = $user->metas()->get();
+        $categories = $user->categories()->orderBy('name')->get();
+
+        // 2. MUDANÇA: Lógica inteligente de resposta
+        if ($request->ajax()) {
+            // Se for um pedido AJAX (do nosso JavaScript), devolve SÓ a tabela
+            return view('lancamentos.partials.historico-tabela', compact('lancamentos'))->render();
+        }
+
+        // Se for um pedido normal, devolve a página inteira
         return view('lancamentos.index', compact('lancamentos', 'metas', 'categories'));
     }
 
@@ -39,27 +49,47 @@ class LancamentoController extends Controller
             'meta_id' => 'nullable|exists:metas,id',
         ]);
 
-        // Usamos uma transaction para garantir a integridade dos dados
-        DB::transaction(function () use ($validated, $request) {
-            // 1. Cria o lançamento
+        $lancamento = null;
+
+        DB::transaction(function () use ($validated, &$lancamento) {
             $lancamento = Auth::user()->lancamentos()->create($validated);
 
-            // 2. Atualiza o progresso da meta, se houver
             if (isset($validated['meta_id'])) {
                 $meta = Auth::user()->metas()->findOrFail($validated['meta_id']);
+
+                // Verifica se a meta JÁ estava completa ANTES deste lançamento
+                $wasCompleted = $meta->progress >= 100;
+
                 if ($lancamento->type === 'receita') {
                     $meta->increment('current_amount', $lancamento->amount);
                 }
-                // A lógica para despesas em metas pode ser adicionada aqui no futuro
-            }
 
-            // 3. DISPARA O EVENTO DE GAMIFICAÇÃO
-            // Anuncia para a aplicação que um novo lançamento foi criado.
-            LancamentoCreated::dispatch($lancamento);
+                $meta->refresh();
+
+                // Verifica se a meta ESTÁ completa AGORA
+                $isNowCompleted = $meta->progress >= 100;
+
+                if ($isNowCompleted && !$wasCompleted) {
+                    MetaCompleted::dispatch($meta->user);
+                }
+
+                // Conquista: vincular lançamento a uma meta
+                $achievement = \App\Models\Achievement::where('slug', 'estrategista')->first();
+                if ($achievement && !$meta->user->achievements()->where('achievement_id', $achievement->id)->exists()) {
+                    $meta->user->achievements()->attach($achievement->id);
+
+                    // Notificação imediata
+                    session()->now('new_achievement', $achievement);
+                }
+            }
         });
+
+        // Evento de criação de lançamento (para outras conquistas)
+        LancamentoCreated::dispatch($lancamento);
 
         return redirect()->route('lancamentos.index')->with('success', 'Lançamento adicionado com sucesso!');
     }
+
 
     /**
      * Mostra o formulário para editar um lançamento.

@@ -4,59 +4,58 @@ namespace App\Listeners;
 
 use App\Events\LancamentoCreated;
 use App\Models\Achievement;
-use App\Models\User; // Importe o Model User
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 class CheckForAchievements
 {
-    /**
-     * Handle the event.
-     */
     public function handle(LancamentoCreated $event): void
     {
         $user = $event->lancamento->user;
+        $lancamentoCount = $user->lancamentos()->count();
 
-        // Agora o método handle chama funções específicas para cada conquista
-        $this->checkFirstLancamento($user);
-        $this->checkTenLancamentos($user);
-    }
+        // --- BRONZE ---
+        // Conquista: 1º Lançamento
+        $this->awardAchievement($user, 'primeiro-lancamento', fn() => $lancamentoCount === 1);
 
-    /**
-     * Verifica a conquista "Início da Jornada".
-     */
-    private function checkFirstLancamento(User $user): void
-    {
-        $achievement = Achievement::where('slug', 'primeiro-lancamento')->first();
+        // Conquista: 10 Lançamentos
+        $this->awardAchievement($user, 'pe-quente-10-lancamentos', fn() => $lancamentoCount >= 10);
 
-        if (!$achievement)
-            return;
-
-        // O usuário já ganhou esta conquista antes?
-        $alreadyHasIt = $user->achievements()->where('achievement_id', $achievement->id)->exists();
-
-        if (!$alreadyHasIt) {
-            $user->achievements()->attach($achievement->id);
+        // --- PRATA ---
+        // Conquista: Vinculou 1º Lançamento à Meta
+        if ($event->lancamento->meta_id) {
+            $this->awardAchievement($user, 'foco-total-primeira-meta-linkada', fn() => true);
         }
+
+        // Conquista: 20 Lançamentos
+        $this->awardAchievement($user, 'atividade-constante-20-lancamentos', fn() => $lancamentoCount >= 20);
     }
 
     /**
-     * Verifica a conquista "Pé-quente Financeiro".
+     * Função auxiliar reutilizável para conceder uma conquista.
      */
-    private function checkTenLancamentos(User $user): void
+    private function awardAchievement(User $user, string $slug, \Closure $condition): void
     {
-        $achievement = Achievement::where('slug', 'pe-quente-10-lancamentos')->first();
+        $achievement = Achievement::where('slug', $slug)->first();
 
-        if (!$achievement)
+        // 1. A conquista existe no banco?
+        if (!$achievement) {
+            Log::warning("Conquista '{$slug}' não encontrada.");
             return;
+        }
 
-        // O usuário já ganhou esta conquista antes?
-        $alreadyHasIt = $user->achievements()->where('achievement_id', $achievement->id)->exists();
+        // 2. O utilizador já tem esta conquista?
+        if ($user->achievements()->where('achievement_id', $achievement->id)->exists()) {
+            return;
+        }
 
-        // Se o usuário tem 10 ou mais lançamentos E ainda não tem a conquista...
-        if ($user->lancamentos()->count() >= 10 && !$alreadyHasIt) {
-            $user->achievements()->attach($achievement->id); // Desbloqueia!
+        // 3. A condição específica para ganhar foi atendida?
+        if ($condition()) {
+            $user->achievements()->attach($achievement->id);
+            Log::info("Utilizador {$user->id} desbloqueou: {$achievement->name}");
+
+            // ✅ Salva o OBJETO na sessão (não array)
+            session()->flash('new_achievement', $achievement);
         }
     }
 }

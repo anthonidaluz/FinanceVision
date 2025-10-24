@@ -9,12 +9,18 @@ class Achievement extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'slug',
         'name',
         'description',
         'icon',
         'points',
+        'theme', 
     ];
 
     public function users()

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -14,25 +15,53 @@ class DashboardController extends Controller
         $user = Auth::user();
         $today = Carbon::now();
 
-        // --- DADOS PARA OS KPIs ---
-        $totalReceitasMes = $user->lancamentos()->where('type', 'receita')->whereMonth('date', $today->month)->whereYear('date', $today->year)->sum('amount');
-        $totalDespesasMes = $user->lancamentos()->where('type', 'despesa')->whereMonth('date', $today->month)->whereYear('date', $today->year)->sum('amount');
-        $saldoAtual = $user->lancamentos()->where('type', 'receita')->sum('amount') - $user->lancamentos()->where('type', 'despesa')->sum('amount');
+        // --- DADOS PARA OS CARDS DE INDICADORES (KPIs) ---
 
-        // --- DADOS PARA OS GRÁFICOS ---
-        $despesasPorCategoria = $user->lancamentos()->where('type', 'despesa')->whereMonth('date', $today->month)->whereYear('date', $today->year)->whereNotNull('category_id')->join('categories', 'lancamentos.category_id', '=', 'categories.id')->select('categories.name', DB::raw('SUM(lancamentos.amount) as total'))->groupBy('categories.name')->pluck('total', 'name');
+        // CORREÇÃO: "Receitas (Mês)" agora exclui o que foi vinculado a uma meta
+        $totalReceitasMes = $user->lancamentos()
+            ->where('type', 'receita')
+            ->whereYear('date', $today->year)
+            ->whereMonth('date', $today->month)
+            ->whereNull('meta_id') // <-- A MÁGICA ACONTECE AQUI
+            ->sum('amount');
+
+        // Despesas continuam iguais
+        $totalDespesasMes = $user->lancamentos()
+            ->where('type', 'despesa')
+            ->whereYear('date', $today->year)
+            ->whereMonth('date', $today->month)
+            ->sum('amount');
+
+        // CORREÇÃO: "Saldo Total" também deve refletir o dinheiro "em conta", excluindo o que já foi para metas
+        $saldoAtual = $user->lancamentos()->where('type', 'receita')->whereNull('meta_id')->sum('amount')
+            - $user->lancamentos()->where('type', 'despesa')->sum('amount');
+
+        // --- DADOS PARA O GRÁFICO DE DESPESAS POR CATEGORIA (PIZZA) ---
+        $despesasPorCategoria = $user->lancamentos()
+            ->where('type', 'despesa')
+            ->whereYear('date', $today->year)
+            ->whereMonth('date', $today->month)
+            ->whereNotNull('category_id')
+            ->join('categories', 'lancamentos.category_id', '=', 'categories.id')
+            ->select('categories.name', DB::raw('SUM(lancamentos.amount) as total'))
+            ->groupBy('categories.name')
+            ->pluck('total', 'name');
+
+        // --- DADOS PARA O GRÁFICO DE EVOLUÇÃO FINANCEIRA (LINHAS) ---
+        // Este gráfico deve mostrar o fluxo de caixa TOTAL, incluindo aportes, por isso NÃO adicionamos o whereNull aqui.
         $evolutionData = ['labels' => [], 'receitas' => [], 'despesas' => []];
         for ($i = 5; $i >= 0; $i--) {
             $date = Carbon::now()->subMonths($i);
             $evolutionData['labels'][] = $date->translatedFormat('M');
+            // Receita total (incluindo aportes)
             $evolutionData['receitas'][] = $user->lancamentos()->where('type', 'receita')->whereYear('date', $date->year)->whereMonth('date', $date->month)->sum('amount');
             $evolutionData['despesas'][] = $user->lancamentos()->where('type', 'despesa')->whereYear('date', $date->year)->whereMonth('date', $date->month)->sum('amount');
         }
 
-        // --- DADOS PARA AS METAS ---
+        // --- DADOS PARA AS METAS EM DESTAQUE ---
         $metasEmAndamento = $user->metas()->whereRaw('current_amount < target_amount')->orderByRaw('(current_amount / target_amount) DESC')->limit(3)->get();
 
-        // --- DADOS PARA ATIVIDADE RECENTE (NOVO) ---
+        // --- DADOS PARA ATIVIDADE RECENTE ---
         $recentAchievements = $user->achievements()->latest('user_achievement.created_at')->limit(3)->get();
 
         return view('dashboard', [
@@ -45,7 +74,7 @@ class DashboardController extends Controller
             'evolutionReceitas' => json_encode($evolutionData['receitas']),
             'evolutionDespesas' => json_encode($evolutionData['despesas']),
             'metasEmAndamento' => $metasEmAndamento,
-            'recentAchievements' => $recentAchievements, // <-- Variável enviada para a view
+            'recentAchievements' => $recentAchievements,
         ]);
     }
 
@@ -55,7 +84,6 @@ class DashboardController extends Controller
     public function achievements()
     {
         $achievements = Auth::user()->achievements()->latest('user_achievement.created_at')->get();
-
         return view('achievements.index', compact('achievements'));
     }
 }

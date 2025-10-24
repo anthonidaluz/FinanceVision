@@ -7,6 +7,7 @@ use App\Http\Controllers\GoogleLoginController;
 use App\Http\Controllers\MetaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 // Página inicial
 Route::get('/', function () {
-    return view('auth.login');
+    return view('welcome');
 });
 
 // URLs personalizadas para as páginas de autenticação do Breeze.
@@ -29,10 +30,6 @@ Route::get('/cadastro', function () {
     return view('auth.register');
 })->name('register');
 
-// Página de dicas
-Route::get('/dicas', function () {
-    return view('dicas');
-})->name('dicas');
 
 Route::get('/google/redirect', [GoogleLoginController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])->name('google.callback');
@@ -64,6 +61,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rotas para o Login com Google
 
     Route::get('/conquistas', [DashboardController::class, 'achievements'])->name('achievements.index');
+
+    Route::get('/dicas', [PageController::class, 'dicas'])->name('dicas');
 
     Route::get('/configuracoes', function () {
         return view('configuracoes');

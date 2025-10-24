@@ -187,12 +187,12 @@
                         datasets: [{
                             data: categoryTotals,
                             backgroundColor: [
-                                'rgba(59,130,246,0.9)',   // Azul
-                                'rgba(239,68,68,0.9)',   // Vermelho
-                                'rgba(245,158,11,0.9)',  // Amarelo
-                                'rgba(16,185,129,0.9)',  // Verde
-                                'rgba(139,92,246,0.9)',  // Roxo
-                                'rgba(107,114,128,0.9)'  // Cinza
+                                'rgba(59,130,246,0.9)',   
+                                'rgba(239,68,68,0.9)',   
+                                'rgba(245,158,11,0.9)',  
+                                'rgba(16,185,129,0.9)',  
+                                'rgba(139,92,246,0.9)',  
+                                'rgba(107,114,128,0.9)'  
                             ],
                             borderColor: '#fff',
                             borderWidth: 3,

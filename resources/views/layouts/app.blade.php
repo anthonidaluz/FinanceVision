@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? config('app.name', 'Finance Vision') }}</title>
 
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,12 +21,46 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- TOASTR -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
+
+<script>
+    @if(session('new_achievement'))
+        let achievement = @json(session('new_achievement'));
+
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "timeOut": "6000",
+            "extendedTimeOut": "2000",
+            "positionClass": "toast-bottom-right",
+            "escapeHtml": false
+        };
+
+        let themeClass = "toast-" + achievement.theme;
+
+        toastr.success(
+            `<div style="display:flex;align-items:center;gap:12px;">
+                            <img src="${achievement.icon}" alt="icon" style="width:40px;height:40px;">
+                            <div>
+                                <strong style="font-size:16px;">${achievement.name}</strong><br>
+                                <small>${achievement.description}</small>
+                            </div>
+                        </div>`,
+            "🏆 Nova Conquista!",
+            { "toastClass": "toast " + themeClass }
+        );
+    @endif
+</script>
 
 <body class="h-full font-sans antialiased">
     <div x-data="{ mobileMenuOpen: false }" class="h-screen flex overflow-hidden bg-gray-100">
-
         <div x-show="mobileMenuOpen" class="fixed inset-0 flex z-40 md:hidden" x-cloak>
             <div @click="mobileMenuOpen = false" x-show="mobileMenuOpen"
                 x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0"
@@ -46,7 +86,7 @@
                     <div class="flex-shrink-0 flex items-center px-4 mb-5">
                         <a href="{{ route('dashboard') }}">
                             <img src="{{ asset('images/financevision_logo.png') }}" alt="Logo Finance Vision"
-                                class="h-10 w-auto">
+                                class="h-20 w-auto">
                         </a>
                     </div>
                     @include('layouts.partials.navigation')
@@ -58,8 +98,7 @@
             <div class="flex flex-col w-64 bg-white border-r border-gray-200 p-5">
                 <div class="flex items-center justify-center h-16 flex-shrink-0 mb-4">
                     <a href="{{ route('dashboard') }}">
-                        <img src="{{ asset('images/financevision_logo.png') }}" alt="Logo Finance Vision"
-                            class="h-15 w-auto">
+                        <img src="{{ asset('images/teste.png') }}" alt="Logo Finance Vision" class="h-30 w-auto">
                     </a>
                 </div>
                 @include('layouts.partials.navigation')
@@ -104,6 +143,27 @@
         </div>
     </div>
 
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-bottom-right",
+            "timeOut": "5000",
+        };
+
+        @if (session('new_achievement'))
+            @php
+                // $achievement é um ARRAY enviado pela sessão.
+                $achievement = session('new_achievement');
+            @endphp
+            
+            // CORREÇÃO: Usamos a sintaxe de array ['chave'] em vez de ->chave
+            toastr.success(
+                "{{ $achievement['description'] }} <br><br><strong class='text-yellow-400'>+{{ $achievement['points'] }} pts</strong>",
+                "🏆 {{ $achievement['name'] }}"
+            );
+        @endif
+    </script>
     @stack('script')
 </body>
 
