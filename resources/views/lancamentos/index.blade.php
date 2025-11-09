@@ -6,6 +6,7 @@
 
 @push('styles')
     <style>
+        /* Estilos para o seletor de Tipo (Receita/Despesa) */
         .entry-type-toggle input[type="radio"]:checked+label {
             transition: all 0.2s ease-in-out;
         }
@@ -21,6 +22,68 @@
             color: white;
             border-color: #e74c3c;
         }
+
+        /* ### CSS DE PAGINAÇÃO ADICIONADO ### */
+        /* Estiliza os links gerados pelo Bootstrap para o nosso design */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 0;
+            gap: 0.5rem;
+        }
+
+        .page-item .page-link {
+            display: block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            /* 8px */
+            border: 1px solid #e2e8f0;
+            /* border-gray-200 */
+            background-color: #fff;
+            color: #4a5568;
+            /* text-gray-700 */
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .page-item .page-link:hover {
+            background-color: #f7fafc;
+            /* bg-gray-50 */
+        }
+
+        .page-item.active .page-link {
+            background-color: #3498DB;
+            /* bg-primary */
+            border-color: #3498DB;
+            color: #fff;
+            z-index: 1;
+        }
+
+        .page-item.disabled .page-link {
+            color: #a0aec0;
+            /* text-gray-400 */
+            background-color: #f7fafc;
+            /* bg-gray-50 */
+            cursor: not-allowed;
+            border-color: #e2e8f0;
+        }
+
+        /* Esconde os textos "Previous" e "Next" */
+        .page-link[rel="prev"] span,
+        .page-link[rel="next"] span {
+            display: none;
+        }
+
+        /* Mostra os ícones de seta */
+        .page-link[rel="prev"]::before {
+            content: '«';
+        }
+
+        .page-link[rel="next"]::before {
+            content: '»';
+        }
     </style>
 @endpush
 
@@ -34,7 +97,7 @@
             </div>
         @endif
 
-        {{-- Formulário --}}
+        {{-- Formulário (O seu código original, intacto) --}}
         <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
             <h3 class="text-2xl font-bold text-gray-900 tracking-tight mb-6 pb-4 border-b">💰 Adicionar Novo Lançamento</h3>
 
@@ -49,14 +112,13 @@
                             <input @click="type = 'receita'" type="radio" id="receita" name="type" value="receita"
                                 class="hidden" {{ old('type', 'receita') == 'receita' ? 'checked' : '' }}>
                             <label for="receita"
-                                class="flex-1 text-center py-2 px-4 cursor-pointer font-semibold flex items-center justify-center gap-2">
+                                class="flex-1 text-center py-2 px-4 cursor-pointer font-semibold flex items-center justify-center gap-2 text-gray-600">
                                 <i class="fa-solid fa-arrow-up"></i> Receita
                             </label>
-
                             <input @click="type = 'despesa'" type="radio" id="despesa" name="type" value="despesa"
                                 class="hidden" {{ old('type', 'receita') == 'despesa' ? 'checked' : '' }}>
                             <label for="despesa"
-                                class="flex-1 text-center py-2 px-4 cursor-pointer font-semibold border-l border-gray-300 flex items-center justify-center gap-2">
+                                class="flex-1 text-center py-2 px-4 cursor-pointer font-semibold border-l border-gray-300 flex items-center justify-center gap-2 text-gray-600">
                                 <i class="fa-solid fa-arrow-down"></i> Despesa
                             </label>
                         </div>
@@ -102,11 +164,13 @@
                         </select>
                     </div>
 
-                    {{-- Meta --}}
+                    {{-- Meta (COM A LÓGICA DE BLOQUEIO) --}}
                     <div>
-                        <label for="meta_id" class="block text-sm font-semibold text-gray-700 mb-2">Vincular a Meta</label>
+                        <label for="meta_id" class="block text-sm font-semibold text-gray-700 mb-2">Vincular a Meta (Apenas
+                            Receitas)</label>
                         <select id="meta_id" name="meta_id"
-                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary">
+                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary transition-colors disabled:bg-gray-100 disabled:opacity-70"
+                            :disabled="type === 'despesa'">
                             <option value="">Nenhuma</option>
                             @foreach ($metas as $meta)
                                 <option value="{{ $meta->id }}" {{ old('meta_id') == $meta->id ? 'selected' : '' }}>
@@ -115,15 +179,13 @@
                             @endforeach
                         </select>
                     </div>
-
                     {{-- Botões --}}
                     <div class="flex flex-wrap justify-end items-center gap-4 mt-6 md:col-span-full">
-                        <button type="button" disabled
-                            class="inline-flex items-center px-6 py-3 bg-gray-200 text-gray-500 font-semibold rounded-lg shadow-sm cursor-not-allowed hover:bg-gray-300 transition">
+                        <a href="{{ route('lancamentos.importar') }}"
+                            class="inline-flex items-center px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-50 transition">
                             <i class="fa-solid fa-file-import mr-2"></i>
                             Importar Extrato
-                        </button>
-
+                        </a>
                         <button type="submit"
                             class="inline-flex items-center px-8 py-3 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-primary/90 transition">
                             <i class="fa-solid fa-check mr-2"></i> Salvar
@@ -133,78 +195,32 @@
             </form>
         </div>
 
-
         {{-- Tabela de Histórico --}}
         <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
             <h3 class="text-2xl font-bold text-gray-900 tracking-tight mb-6">📁 Histórico de Lançamentos</h3>
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50 text-gray-500 uppercase tracking-wider text-xs">
-                        <tr>
-                            <th class="px-6 py-3 text-left font-semibold">Descrição</th>
-                            <th class="px-6 py-3 text-left font-semibold">Data</th>
-                            <th class="px-6 py-3 text-left font-semibold">Valor</th>
-                            <th class="px-6 py-3 text-right font-semibold">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 bg-white">
-                        @forelse ($lancamentos as $lancamento)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center gap-3">
-                                        @if($lancamento->category && $lancamento->category->icon)
-                                            <i class="{{ $lancamento->category->icon }} text-lg"
-                                                style="color: {{ $lancamento->category->color ?? '#6c757d' }}"></i>
-                                        @endif
-                                        <div>
-                                            <div class="font-medium text-gray-900">{{ $lancamento->description }}</div>
-                                            <div class="text-xs text-gray-500">
-                                                @if($lancamento->category)
-                                                    <span class="font-semibold">{{ $lancamento->category->name }}</span>
-                                                @endif
-                                                @if($lancamento->meta)
-                                                    <span class="ml-2 italic opacity-75">→ {{ $lancamento->meta->name }}</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-gray-600">
-                                    {{ \Carbon\Carbon::parse($lancamento->date)->format('d/m/Y') }}
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap font-semibold {{ $lancamento->type == 'receita' ? 'text-green-600' : 'text-red-500' }}">
-                                    R$ {{ number_format($lancamento->amount, 2, ',', '.') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <div class="flex items-center justify-end gap-3">
-                                        <a href="{{ route('lancamentos.edit', $lancamento) }}"
-                                            class="text-blue-600 hover:text-blue-800 transition" title="Editar">
-                                            <i class="fa-solid fa-pencil"></i>
-                                        </a>
-                                        <form action="{{ route('lancamentos.destroy', $lancamento) }}" method="POST"
-                                            onsubmit="return confirm('Tem certeza que deseja excluir este lançamento?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-500 hover:text-red-700 transition"
-                                                title="Excluir">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                                    Nenhum lançamento encontrado.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            {{-- ### O CÓDIGO DA PAGINAÇÃO AJAX COMEÇA AQUI ### --}}
+            <div id="historico-container" x-data="{
+                                        async loadPage(url) {
+                                            try {
+                                                const response = await fetch(url, { 
+                                                    headers: { 
+                                                        'X-Requested-With': 'XMLHttpRequest',
+                                                        'Accept': 'text/html'
+                                                    } 
+                                                });
+                                                if (!response.ok) throw new Error('Erro ao carregar página.');
+                                                const html = await response.text();
+                                                this.$root.innerHTML = html; // Substitui o conteúdo do div 'historico-container'
+                                            } catch (error) {
+                                                console.error('Falha na paginação AJAX:', error);
+                                            }
+                                        }
+                                    }">
+                {{-- Carrega a tabela parcial pela primeira vez --}}
+                @include('lancamentos.partials.historico-tabela', ['lancamentos' => $lancamentos])
             </div>
+            {{-- ### FIM DO CÓDIGO DA PAGINAÇÃO AJAX ### --}}
         </div>
     </div>
 @endsection

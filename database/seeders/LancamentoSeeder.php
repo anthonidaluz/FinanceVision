@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Lancamento;
+use App\Models\Meta;
 use Carbon\Carbon;
 
 class LancamentoSeeder extends Seeder
@@ -16,21 +17,37 @@ class LancamentoSeeder extends Seeder
      */
     public function run(): void
     {
-        // Cria um usuário de teste
+        // Cria um utilizador de teste
         $user = User::factory()->create([
             'name' => 'Usuário Teste',
             'email' => 'teste@email.com',
         ]);
 
-        // Cria algumas categorias para este usuário
-        $categorias = collect([
+        // Cria algumas categorias para este utilizador
+        $categoriasData = [
             ['name' => 'Salário', 'icon' => 'fa-solid fa-dollar-sign', 'color' => '#2ecc71'],
             ['name' => 'Alimentação', 'icon' => 'fa-solid fa-burger', 'color' => '#e74c3c'],
             ['name' => 'Transporte', 'icon' => 'fa-solid fa-car', 'color' => '#3498db'],
             ['name' => 'Lazer', 'icon' => 'fa-solid fa-film', 'color' => '#9b59b6'],
             ['name' => 'Moradia', 'icon' => 'fa-solid fa-house-chimney', 'color' => '#f1c40f'],
-        ])->map(fn ($cat) => Category::create(array_merge($cat, ['user_id' => $user->id])))
-          ->all();
+        ];
+        $categorias = [];
+        foreach ($categoriasData as $cat) {
+            $categorias[] = Category::create(array_merge($cat, ['user_id' => $user->id]));
+        }
+
+        // ### NOVO: CRIA METAS PARA O UTILIZADOR ###
+        Meta::create([
+            'user_id' => $user->id,
+            'name' => 'Viagem de Férias',
+            'target_amount' => 5000,
+            'target_date' => Carbon::now()->addYear(),
+        ]);
+        Meta::create([
+            'user_id' => $user->id,
+            'name' => 'Cofrinho de Investimento',
+            'target_amount' => 10000,
+        ]);
 
         // Gera lançamentos para os últimos 6 meses
         for ($i = 0; $i < 6; $i++) {
@@ -48,7 +65,7 @@ class LancamentoSeeder extends Seeder
 
             // Cria de 5 a 10 despesas aleatórias no mês
             for ($j = 0; $j < rand(5, 10); $j++) {
-                $randomCategory = $categorias[rand(1, 4)]; // Pega uma categoria de despesa aleatória
+                $randomCategory = $categorias[rand(1, 4)]; 
                 Lancamento::create([
                     'user_id' => $user->id,
                     'category_id' => $randomCategory->id,

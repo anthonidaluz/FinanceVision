@@ -4,23 +4,45 @@ namespace App\Listeners;
 
 use App\Events\CategoryCreated;
 use App\Models\Achievement;
+use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class CheckCategoryAchievements
 {
     public function handle(CategoryCreated $event): void
     {
         $user = $event->category->user;
-        $achievement = Achievement::where('slug', 'organizador-5-categorias')->first();
+        $categoryCount = $user->categories()->count();
 
-        if (!$achievement)
-            return; // Se a conquista não existe, não faz nada
+        // BRONZE 2: "Organizador(a)"
+        $this->awardAchievement($user, 'organizador-5-categorias', fn() => $categoryCount >= 5);
+    }
 
-        // O usuário já tem essa conquista?
-        $alreadyHasIt = $user->achievements()->where('achievement_id', $achievement->id)->exists();
+    /**
+     * Função auxiliar reutilizável para conceder uma conquista.
+     */
+    private function awardAchievement(User $user, string $slug, \Closure $condition): void
+    {
+        $achievement = Achievement::where('slug', $slug)->first();
 
-        // Se o usuário tem 5 ou mais categorias E ainda não tem a conquista...
-        if ($user->categories()->count() >= 5 && !$alreadyHasIt) {
-            $user->achievements()->attach($achievement->id); // Desbloqueia!
+        // 1. A conquista existe no banco?
+        if (!$achievement) {
+            Log::warning("Conquista '{$slug}' não encontrada.");
+            return;
+        }
+
+        // 2. O utilizador já tem esta conquista?
+        if ($user->achievements()->where('achievement_id', $achievement->id)->exists()) {
+            return;
+        }
+
+        // 3. A condição específica para ganhar foi atendida?
+        if ($condition()) {
+            $user->achievements()->attach($achievement->id);
+            Log::info("Utilizador {$user->id} desbloqueou: {$achievement->name}");
+
+            // ✅ Salva o OBJETO na sessão (não array)
+            session()->flash('new_achievement', $achievement);
         }
     }
 }

@@ -35,6 +35,7 @@
                 <div>
                     <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">Data Inicial</label>
                     <input type="date" id="start_date" name="start_date"
+                        value="{{ request('start_date', \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d')) }}"
                         class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary focus:border-primary text-sm">
                 </div>
 
@@ -42,6 +43,7 @@
                 <div>
                     <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">Data Final</label>
                     <input type="date" id="end_date" name="end_date"
+                        value="{{ request('end_date', \Carbon\Carbon::now()->endOfMonth()->format('Y-m-d')) }}"
                         class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary focus:border-primary text-sm">
                 </div>
 

@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? config('app.name', 'Finance Vision') }}</title>
 
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,12 +21,18 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- TOASTR -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
+
 
 <body class="h-full font-sans antialiased">
     <div x-data="{ mobileMenuOpen: false }" class="h-screen flex overflow-hidden bg-gray-100">
-
         <div x-show="mobileMenuOpen" class="fixed inset-0 flex z-40 md:hidden" x-cloak>
             <div @click="mobileMenuOpen = false" x-show="mobileMenuOpen"
                 x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0"
@@ -46,7 +58,7 @@
                     <div class="flex-shrink-0 flex items-center px-4 mb-5">
                         <a href="{{ route('dashboard') }}">
                             <img src="{{ asset('images/financevision_logo.png') }}" alt="Logo Finance Vision"
-                                class="h-10 w-auto">
+                                class="h-20 w-auto">
                         </a>
                     </div>
                     @include('layouts.partials.navigation')
@@ -58,8 +70,7 @@
             <div class="flex flex-col w-64 bg-white border-r border-gray-200 p-5">
                 <div class="flex items-center justify-center h-16 flex-shrink-0 mb-4">
                     <a href="{{ route('dashboard') }}">
-                        <img src="{{ asset('images/financevision_logo.png') }}" alt="Logo Finance Vision"
-                            class="h-15 w-auto">
+                        <img src="{{ asset('images/teste.png') }}" alt="Logo Finance Vision" class="h-30 w-auto">
                     </a>
                 </div>
                 @include('layouts.partials.navigation')
@@ -85,13 +96,7 @@
                 </div>
 
                 {{-- Ações (notificações, perfil, etc.) --}}
-                <div class="absolute right-4 flex items-center gap-4">
-                    <button type="button"
-                        class="p-2 text-gray-500 rounded-full hover:bg-gray-100 hover:text-gray-700 transition">
-                        <span class="sr-only">Notificações</span>
-                        <i class="fa-regular fa-bell text-xl"></i>
-                    </button>
-                </div>
+
             </header>
 
             <main class="flex-1 relative overflow-y-auto focus:outline-none p-6 lg:p-8">
@@ -104,6 +109,72 @@
         </div>
     </div>
 
+    <script>
+        @if(session('new_achievement'))
+            let achievement = @json(session('new_achievement'));
+
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "timeOut": "6000",
+                "extendedTimeOut": "2000",
+                "positionClass": "toast-bottom-right",
+                "escapeHtml": false,
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut",
+                "showDuration": "400",
+                "hideDuration": "400"
+            };
+
+            const themeColors = {
+                bronze: "#b57e43",
+                prata: "#a7a7a7",
+                ouro: "#eeba36"
+            };
+            let theme = achievement.theme || 'bronze';
+            let color = themeColors[theme] || "#b57e43";
+
+            let iconHtml = achievement.icon?.startsWith('fa')
+                ? `<i class="${achievement.icon}" style="font-size:32px;color:${color}"></i>`
+                : `<span style="font-size:34px;color:#27ae60;">✅</span>`;
+
+            toastr.success(
+                `<div style="display:flex;align-items:center;gap:14px;min-width:225px;">
+                    ${iconHtml}
+                    <div>
+                        <strong style="font-size:15px;color:${color};letter-spacing:.8px;">${achievement.name}</strong>
+                        <div style="color:#666;font-size:13px;margin-top:2px;">${achievement.description}</div>
+                    </div>
+                </div>`,
+                `<span style="font-size:17px;vertical-align:middle;">🏆</span> <span style="color:${color};">Nova Conquista!</span>`,
+                { "toastClass": "toast custom-toast-" + theme }
+            );
+
+            try { sessionStorage.setItem('achievement_notice_shown', '1'); } catch (e) { }
+        @endif
+    </script>
+    <style>
+        .toast.custom-toast-bronze {
+            border-left: 8px solid #b57e43;
+            background: #fff8ed;
+        }
+
+        .toast.custom-toast-prata {
+            border-left: 8px solid #a7a7a7;
+            background: #f8f8fa;
+        }
+
+        .toast.custom-toast-ouro {
+            border-left: 8px solid #eeba36;
+            background: #fffbea;
+        }
+
+        .toast .toast-success {
+            background: none !important;
+        }
+    </style>
+
+    </script>
     @stack('script')
 </body>
 

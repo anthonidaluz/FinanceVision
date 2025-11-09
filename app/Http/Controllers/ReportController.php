@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Events\ReportViewed;
 use App\Models\Lancamento;
 use App\Models\Meta;
 
@@ -22,10 +23,14 @@ class ReportController extends Controller
      */
     public function gerar(Request $request)
     {
+
+        $user = Auth::user();
         $validated = $request->validate([
             'report_type' => 'required|in:fluxo,metas',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+
+            ReportViewed::dispatch($user)
         ]);
 
         $user = Auth::user();

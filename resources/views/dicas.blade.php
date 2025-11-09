@@ -8,7 +8,7 @@
     <div x-data="{ tab: 'orcamento' }" class="max-w-7xl mx-auto">
 
         <div class="text-center mb-10">
-            <h2 class="text-4xl font-bold text-gray-800">Central de Conhecimento</h2>
+            <h2 class="text-4xl font-bold text-gray-800">📚 Central de Conhecimento</h2>
             <p class="mt-2 text-lg text-gray-600">Estratégias e insights para fortalecer sua saúde financeira.</p>
         </div>
 

@@ -13,7 +13,6 @@ class MetaController extends Controller
 
     public function index(Request $request)
     {
-        // CORREÇÃO: Renomeado para corresponder ao que a view e o compact() esperam
         $selectedStatus = $request->query('status');
         $selectedSort = $request->query('sort');
 
