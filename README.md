@@ -1,19 +1,32 @@
 # 📘 Finance Vision
 
-Um Sistema de Controle de Finanças Pessoais desenvolvido com foco em jovens e na simplicidade. O principal objetivo é ajudar usuários a entenderem melhor sua vida financeira, registrando receitas, despesas e metas através de uma interface moderna e fácil de usar.
+Sistema de Controle de Finanças Pessoais desenvolvido com foco em jovens. O principal objetivo é ajudar usuários a entenderem melhor sua vida financeira, registrando receitas, despesas e metas através de uma interface moderna, intuitiva e engajadora.
 
 ## 📌 Funcionalidades (Status Atual)
 
-- ✅ **Autenticação Completa:** Cadastro, login, logout e recuperação de senha com interface profissional e personalizada.
-- ✅ **Dashboard Dinâmico:** Painel principal com resumo financeiro (receitas, despesas) e gráficos interativos.
-- ✅ **CRUD de Lançamentos:** Funcionalidade completa para Criar, Ler, Editar e Excluir transações financeiras.
-- ✅ **CRUD de Metas:** Funcionalidade completa para Criar, Ler, Editar e Excluir metas de poupança, com cálculo de progresso.
-- ✅ **CRUD de Categorias:** Funcionalidade completa para o usuário gerenciar suas próprias categorias.
-- ✅ **Integração:** Lançamentos são vinculados a Categorias e Metas, atualizando o progresso automaticamente.
-- ✅ **Páginas de Conteúdo:** Telas consistentes para Dicas Financeiras, Configurações e um hub para futuros Relatórios.
-- ✅ **Interface Responsiva:** Layout que se adapta a desktops, tablets e dispositivos móveis, incluindo menu lateral funcional.
-- 🚧 **Relatórios Detalhados:** Em desenvolvimento.
-- ⏳ **Gamificação e Notificações:** Planejado para futuras versões.
+### 🔐 Autenticação e Segurança
+- ✅ **Autenticação Completa:** Cadastro e login por e-mail/senha com interface profissional.
+- ✅ **Login Social:** Integração com **Google** para login rápido e seguro (via Laravel Socialite).
+- ✅ **Recuperação de Senha:** Fluxo completo de "Esqueci minha senha" com envio de e-mails.
+
+### 💰 Gestão Financeira
+- ✅ **Dashboard Dinâmico:** Painel principal com KPIs em tempo real (Receitas, Despesas, Saldo) e gráficos interativos.
+- ✅ **CRUD de Lançamentos:** Sistema completo para registrar receitas e despesas, com paginação AJAX para melhor experiência.
+- ✅ **CRUD de Metas:** Definição de objetivos financeiros com barra de progresso automática baseada nos lançamentos vinculados.
+- ✅ **CRUD de Categorias:** Personalização total de categorias com ícones e cores.
+- ✅ **Importador Mágico (IA):** Funcionalidade avançada que permite importar extratos bancários (CSV) e usa **Inteligência Artificial (Google Gemini)** para categorizar automaticamente as transações.
+
+### 🎮 Gamificação e Engajamento
+- ✅ **Sistema de Conquistas:** Badges com diferentes raridades (Bronze, Prata, Ouro) desbloqueados automaticamente com base no uso da aplicação.
+- ✅ **Níveis e XP:** Sistema de progressão onde o usuário ganha pontos de experiência e sobe de nível.
+- ✅ **Feedback em Tempo Real:** Notificações "Toast" instantâneas ao desbloquear uma nova conquista.
+
+### 🛠️ Outros Recursos
+- ✅ **Design Responsivo:** Interface adaptada para desktops, tablets e telefones.
+- ✅ **Páginas de Conteúdo:** Telas dedicadas para Dicas Financeiras e Configurações de Perfil.
+- ✅ **Relatórios Avançados:** Relátorios de Fluxo de Caixa e Acompanhamento de Metas Financeiras para melhor visualização dos Dados.
+
+---
 
 ## 🎯 Público-Alvo
 
@@ -21,10 +34,11 @@ Jovens, estudantes e pessoas iniciando sua jornada financeira, que desejam apren
 
 ## 💻 Tecnologias Utilizadas
 
-- **Frontend:** HTML, **Tailwind CSS**, JavaScript, **Alpine.js**, Blade (Laravel)
-- **Backend:** PHP, **Laravel Framework**
+- **Backend:** PHP 8.2+, **Laravel 11**
+- **Frontend:** Blade, **Tailwind CSS**, Alpine.js
 - **Banco de Dados:** MySQL
-- **Gráficos e visualizações:** **Chart.js**
+- **APIs Externas:** Google Gemini (IA), Google OAuth (Login Social)
+- **Bibliotecas:** Chart.js (gráficos), Toastr.js (notificações)
 
 ---
 
@@ -34,79 +48,45 @@ Siga os passos abaixo para configurar e executar o projeto em seu ambiente de de
 
 ### Pré-requisitos
 
-Antes de começar, garanta que você tenha as seguintes ferramentas instaladas:
-- PHP (versão ^8.1 ou superior)
+- PHP >= 8.2
 - Composer
 - Node.js e NPM
-- Um servidor de banco de dados (ex: MySQL, MariaDB)
+- Banco de dados MySQL
 
 ### Passos para Instalação
 
 1.  **Clone o repositório:**
     ```bash
     git clone [https://github.com/anthonidaluz/FinanceVision.git](https://github.com/anthonidaluz/FinanceVision.git)
-    ```
-
-2.  **Acesse o diretório do projeto:**
-    ```bash
     cd FinanceVision
     ```
 
-3.  **Instale as dependências do PHP:**
+2.  **Instale as dependências:**
     ```bash
     composer install
+    npm install
     ```
 
-4.  **Crie o arquivo de ambiente:**
-    Copie o arquivo de exemplo `.env.example` para `.env`.
+3.  **Configure o ambiente:**
     ```bash
     cp .env.example .env
-    ```
-    *(No Windows, use `copy .env.example .env`)*
-
-5.  **Gere a chave da aplicação:**
-    ```bash
     php artisan key:generate
     ```
+    *Abra o arquivo `.env` e configure suas credenciais de banco de dados (DB_...) e, opcionalmente, as chaves do Google (GOOGLE_CLIENT_ID, GEMINI_API_KEY) para testar todas as funcionalidades.*
 
-6.  **Configure o Banco de Dados:**
-    Abra o arquivo `.env` e edite as seguintes linhas com as credenciais do seu banco de dados:
-    ```env
-    DB_CONNECTION=mysql
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
-    DB_DATABASE=finance_vision
-    DB_USERNAME=root
-    DB_PASSWORD=
-    ```
-    *Lembre-se de criar um banco de dados com o nome `finance_vision` (ou o nome que você preferir).*
-
-7.  **Execute as Migrations e os Seeders:**
-    Este comando irá apagar o banco, recriar todas as tabelas e populá-las com dados de teste (usuário, categorias e 6 meses de lançamentos).
+4.  **Prepare o banco de dados:**
     ```bash
     php artisan migrate:fresh --seed
     ```
 
-8.  **Instale as dependências do JavaScript:**
-    ```bash
-    npm install
-    ```
-
 ### Executando a Aplicação
 
-Para rodar a aplicação, você precisará de **dois terminais** abertos na pasta do projeto.
+Abra dois terminais na pasta do projeto:
 
-1.  **Terminal 1 - Inicie o servidor do Laravel:**
-    ```bash
-    php artisan serve
-    ```
+* Terminal 1: `php artisan serve`
+* Terminal 2: `npm run dev`
 
-2.  **Terminal 2 - Inicie o compilador de assets (Vite):**
-    ```bash
-    npm run dev
-    ```
+Acesse **http://127.0.0.1:8000** e use as credenciais de teste:
+* **Email:** `teste@email.com`
+* **Senha:** `password`
 
-3.  **Acesse no navegador:**
-    Abra seu navegador e acesse [http://127.0.0.1:8000](http://127.0.0.1:8000). Use as credenciais de teste para logar:
-    * **Email:** `teste@email.com`
-    * **Senha:** `password`
